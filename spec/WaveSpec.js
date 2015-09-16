@@ -8,7 +8,7 @@ describe("Wave", function() {
     });
 
     it('creates an object', function() {
-      expect(wave).toBe(jasmine.any(Object));
+      expect(wave).toEqual(jasmine.any(Object));
     });
 
     it('has options property', function() {
