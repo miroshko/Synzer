@@ -74,8 +74,17 @@ Wave.prototype._concatArrayBuffers = function(buffer1, buffer2) {
 
 Wave.prototype.setData = function(data) {
   this.data = data;
-  // this._waveform = _concatArrayBuffers(this._generateHeader(), this.data);
-  this._waveform = this._generateHeader();
+  var bytesPerSample = this.options.bitsPerSample / 8;
+  var dataBuffer = new ArrayBuffer(this.data.length * bytesPerSample);
+  var dataView = new DataView(dataBuffer);
+  // allows for 8 and 16 only which is ok
+  var setIntFunc = 'setUint' + this.options.bitsPerSample
+
+  for(var i = 0; i < this.data.length; i++) {
+    dataView[setIntFunc](i * bytesPerSample, this.data[i], true);
+  }
+
+  this._waveform = this._concatArrayBuffers(this._generateHeader(), dataBuffer);
 };
 
 Wave.prototype.getDataURI = function() {
