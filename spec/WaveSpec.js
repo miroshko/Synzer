@@ -33,14 +33,14 @@ describe("Wave", function() {
     })
   });
 
-  describe('Wave format has correct header value for', function() {
+  describe('Wave format has correct', function() {
     var waves, bin, views = [];
     beforeEach(function() {
       waves = [
         new Wave({channels: 1, sampleRate: 8000, bitsPerSample: 16}),
         new Wave({channels: 2, sampleRate: 44100, bitsPerSample: 8})
       ];
-      waves[0].setData([]);
+      waves[0].setData([1,2]);
       waves[1].setData([1,2,3,4,5,6,7,8,9,10]);
 
       for(var i = 0; i < waves.length; i++) {
@@ -62,61 +62,66 @@ describe("Wave", function() {
       return str;
     };
 
-    it('RIFF WAVE', function() {
+    it('RIFF WAVE header', function() {
       expect(str(views[0], 0, 4)).toBe('RIFF');
       expect(str(views[0], 8, 4)).toBe('WAVE');
       expect(str(views[1], 0, 4)).toBe('RIFF');
       expect(str(views[1], 8, 4)).toBe('WAVE');
     });
 
-    it('chunkSize', function() {
-      expect(views[0].getUint32(4, true)).toBe(36);
+    it('chunkSize header', function() {
+      expect(views[0].getUint32(4, true)).toBe(36 + 2 * 16 * 8);
       expect(views[1].getUint32(4, true)).toBe(36 + 10 * 8 * 8);
     });
 
-    it('fmt', function() {
+    it('fmt header', function() {
       expect(str(views[0], 12, 3)).toBe('fmt');
       expect(str(views[1], 12, 3)).toBe('fmt');
     });
 
-    it('SubChunk1Size', function() {
+    it('SubChunk1Size header', function() {
       expect(views[0].getUint32(16, true)).toBe(16);
       expect(views[1].getUint32(16, true)).toBe(16);
     });
 
-    it('AudioFormat', function() {
+    it('AudioFormat header', function() {
       expect(views[0].getUint16(20, true)).toBe(1);
       expect(views[1].getUint16(20, true)).toBe(1);
     });
 
-    it('NumChannels', function() {
+    it('NumChannels header', function() {
       expect(views[0].getUint16(22, true)).toBe(1);
       expect(views[1].getUint16(22, true)).toBe(2);
     });
 
-    it('SampleRate', function() {
+    it('SampleRate header', function() {
       expect(views[0].getUint32(24, true)).toBe(8000);
       expect(views[1].getUint32(24, true)).toBe(44100);
     });
 
-    it('ByteRate', function() {
+    it('ByteRate header', function() {
       expect(views[0].getUint32(28, true)).toBe(8000 * 16 * 1 / 8);
       expect(views[1].getUint32(28, true)).toBe(44100 * 8 * 2 / 8);
     });
 
-    it('BlockAlign', function() {
+    it('BlockAlign header', function() {
       expect(views[0].getUint16(32, true)).toBe(16 * 1 / 8);
       expect(views[1].getUint16(32, true)).toBe(8 * 2 / 8);
     });
 
-    it('BitsPerSample', function() {
+    it('BitsPerSample header', function() {
       expect(views[0].getUint16(34, true)).toBe(16);
       expect(views[1].getUint16(34, true)).toBe(8);
     });
 
-    it('SubChunk2Size', function() {
-      expect(views[0].getUint32(40, true)).toBe(0);
+    it('SubChunk2Size header', function() {
+      expect(views[0].getUint32(40, true)).toBe(2 * 16 * 8);
       expect(views[1].getUint32(40, true)).toBe(10 * 8 * 8);
+    });
+
+    it('file size', function() {
+      expect(views[0].byteLength).toBe(44 + 2 * 2);
+      expect(views[1].byteLength).toBe(44 + 10);
     });
   });
 
