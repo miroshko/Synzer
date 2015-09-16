@@ -3,13 +3,14 @@ global.btoa = require('btoa');
 global.atob = require('atob');
 
 describe("Wave", function() {
-  describe('constructor', function() {
+  describe('object', function() {
     var wave = null;
     beforeEach(function() {
       wave = new Wave();
+      wave.setData([91]);
     });
 
-    it('creates an object', function() {
+    it('creates as object', function() {
       expect(wave).toEqual(jasmine.any(Object));
     });
 
@@ -20,6 +21,16 @@ describe("Wave", function() {
     it('getDataURI returns string which starts with data:audio/wav;base64,', function() {
       expect(wave.getDataURI().indexOf('data:audio/wav;base64,')).toEqual(0);
     });
+
+    it('throws an error if trying to getDataURI without a data', function() {
+      expect(wave.getDataURI).toThrow();
+    });
+
+    it('setData influences getDataURI output', function() {
+      var oldDataURI = wave.getDataURI();
+      wave.setData([1,2,3,4,5,6,7,8,9,10]);
+      expect(wave.getDataURI()).not.toEqual(oldDataURI);
+    })
   });
 
   describe('Wave format has correct header value for', function() {
@@ -29,6 +40,9 @@ describe("Wave", function() {
         new Wave({channels: 1, sampleRate: 8000, bitsPerSample: 16}),
         new Wave({channels: 2, sampleRate: 44100, bitsPerSample: 8})
       ];
+      waves[0].setData([]);
+      waves[1].setData([1,2,3,4,5,6,7,8,9,10]);
+
       for(var i = 0; i < waves.length; i++) {
         bin = atob(waves[i].getDataURI().replace('data:audio/wav;base64,', ''));
         len = bin.length;

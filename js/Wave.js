@@ -11,6 +11,10 @@ function Wave(options) {
     this.options[opt] = options[opt] || defaultOptions[opt];
   }
 
+  Object.freeze(this.options);
+}
+
+Wave.prototype._generateHeader = function() {
   // off  size value
   // 0    4    "RIFF" = 0x52494646
   // 4    4    ChunkSize (36+SubChunk2Size)
@@ -26,39 +30,29 @@ function Wave(options) {
   // 36   4    "data" = 0x64617461
   // 40   4    data size = NumSamples*NumChannels*BitsPerSample/8
 
+  var subChunk2Size = this.data.length * this.options.bitsPerSample * 8;
+  var chunkSize     = 36 + subChunk2Size;
   var subChunk2Size = 0                       
-  var chunkId       = [0x52,0x49,0x46,0x46] 
+  var chunkId       = 0x52494646; // RIFF
   var chunkSize     = 36 + subChunk2Size                     
-  var format        = [0x57,0x41,0x56,0x45] 
-  var subChunk1Id   = [0x66,0x6d,0x74,0x20] 
+  var format        = 0x57415645; // WAVE
+  var subChunk1Id   = 0x666d7420; // fmt
   var subChunk1Size = 16                    
   var audioFormat   = 1                     
-  var numChannels   = options.channels                     
-  var sampleRate    = options.sampleRate                  
-  var bitsPerSample = options.bitsPerSample                     
+  var numChannels   = this.options.channels                     
+  var sampleRate    = this.options.sampleRate                  
+  var bitsPerSample = this.options.bitsPerSample                     
   var byteRate      = sampleRate * numChannels * bitsPerSample / 8                     
   var blockAlign    = numChannels * bitsPerSample / 8                  
-  var subChunk2Id   = [0x64,0x61,0x74,0x61] 
+  var subChunk2Id   = 0x64617461; // data 
 
   var header = new ArrayBuffer(44);
   var view = new DataView(header)
 
-  view.setUint8(0, chunkId[0])
-  view.setUint8(1, chunkId[1])
-  view.setUint8(2, chunkId[2])
-  view.setUint8(3, chunkId[3])
-  view.setUint8(4, chunkSize)
-  view.setUint8(5, chunkSize)
-  view.setUint8(6, chunkSize)
-  view.setUint8(7, chunkSize)
-  view.setUint8(8, format[0])
-  view.setUint8(9, format[1])
-  view.setUint8(10, format[2])
-  view.setUint8(11, format[3])
-  view.setUint8(12, subChunk1Id[0])
-  view.setUint8(13, subChunk1Id[1])
-  view.setUint8(14, subChunk1Id[2])
-  view.setUint8(15, subChunk1Id[3])
+  view.setUint32(0, chunkId)
+  view.setUint32(4, chunkSize, true)
+  view.setUint32(8, format)
+  view.setUint32(12, subChunk1Id)
   view.setUint32(16, subChunk1Size, true)
   view.setUint16(20, audioFormat, true)
   view.setUint16(22, numChannels, true)
@@ -66,22 +60,35 @@ function Wave(options) {
   view.setUint32(28, byteRate, true)
   view.setUint16(32, blockAlign, true)
   view.setUint16(34, bitsPerSample, true)
-  view.setUint8(36, subChunk2Id[0])
-  view.setUint8(37, subChunk2Id[1])
-  view.setUint8(38, subChunk2Id[2])
-  view.setUint8(39, subChunk2Id[3])
+  view.setUint32(36, subChunk2Id)
   view.setUint32(40, subChunk2Size)
 
-  this._waveform = header;
+  return header;
 }
 
+Wave.prototype._concatArrayBuffers = function(buffer1, buffer2) {
+    var tmp = new Uint8Array(buffer1.byteLength + buffer2.byteLength);
+    tmp.set(new Uint8Array(buffer1), 0);
+    tmp.set(new Uint8Array(buffer2), buffer1.byteLength);
+    return tmp.buffer;
+}
+
+Wave.prototype.setData = function(data) {
+  this.data = data;
+  // this._waveform = _concatArrayBuffers(this._generateHeader(), this.data);
+  this._waveform = this._generateHeader();
+};
+
 Wave.prototype.getDataURI = function() {
+  if (!this.data) {
+    throw new Error('data is not set');
+  }
   var binary = '';
   var bytes = new Uint8Array(this._waveform);
   for (var i = 0; i < bytes.byteLength; i++) {
     binary += String.fromCharCode(bytes[i]);
   }
-  return 'data:audio/wav;base64' + btoa(binary);
+  return 'data:audio/wav;base64,' + btoa(binary);
 };
 
 module.exports = Wave;
