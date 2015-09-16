@@ -33,44 +33,43 @@ Wave.prototype._generateHeader = function() {
   var subChunk2Size = this.data.length * this.options.bitsPerSample * 8;
   var chunkSize     = 36 + subChunk2Size;
   var chunkId       = 0x52494646; // RIFF
-  var chunkSize     = 36 + subChunk2Size                     
   var format        = 0x57415645; // WAVE
   var subChunk1Id   = 0x666d7420; // fmt
-  var subChunk1Size = 16                    
-  var audioFormat   = 1                     
-  var numChannels   = this.options.channels                     
-  var sampleRate    = this.options.sampleRate                  
-  var bitsPerSample = this.options.bitsPerSample                     
-  var byteRate      = sampleRate * numChannels * bitsPerSample / 8                     
-  var blockAlign    = numChannels * bitsPerSample / 8                  
-  var subChunk2Id   = 0x64617461; // data 
+  var subChunk1Size = 16;
+  var audioFormat   = 1;
+  var numChannels   = this.options.channels;
+  var sampleRate    = this.options.sampleRate;
+  var bitsPerSample = this.options.bitsPerSample;
+  var byteRate      = sampleRate * numChannels * bitsPerSample / 8;
+  var blockAlign    = numChannels * bitsPerSample / 8;
+  var subChunk2Id   = 0x64617461; // data
 
   var header = new ArrayBuffer(44);
-  var view = new DataView(header)
+  var view = new DataView(header);
 
-  view.setUint32(0, chunkId)
-  view.setUint32(4, chunkSize, true)
-  view.setUint32(8, format)
-  view.setUint32(12, subChunk1Id)
-  view.setUint32(16, subChunk1Size, true)
-  view.setUint16(20, audioFormat, true)
-  view.setUint16(22, numChannels, true)
-  view.setUint32(24, sampleRate, true)
-  view.setUint32(28, byteRate, true)
-  view.setUint16(32, blockAlign, true)
-  view.setUint16(34, bitsPerSample, true)
-  view.setUint32(36, subChunk2Id)
-  view.setUint32(40, subChunk2Size, true)
+  view.setUint32(0, chunkId);
+  view.setUint32(4, chunkSize, true);
+  view.setUint32(8, format);
+  view.setUint32(12, subChunk1Id);
+  view.setUint32(16, subChunk1Size, true);
+  view.setUint16(20, audioFormat, true);
+  view.setUint16(22, numChannels, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, byteRate, true);
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, bitsPerSample, true);
+  view.setUint32(36, subChunk2Id);
+  view.setUint32(40, subChunk2Size, true);
 
   return header;
-}
+};
 
 Wave.prototype._concatArrayBuffers = function(buffer1, buffer2) {
     var tmp = new Uint8Array(buffer1.byteLength + buffer2.byteLength);
     tmp.set(new Uint8Array(buffer1), 0);
     tmp.set(new Uint8Array(buffer2), buffer1.byteLength);
     return tmp.buffer;
-}
+};
 
 Wave.prototype.setData = function(data) {
   this.data = data;
@@ -78,7 +77,7 @@ Wave.prototype.setData = function(data) {
   var dataBuffer = new ArrayBuffer(this.data.length * bytesPerSample);
   var dataView = new DataView(dataBuffer);
   // allows for 8 and 16 only which is ok
-  var setIntFunc = 'setUint' + this.options.bitsPerSample
+  var setIntFunc = 'setUint' + this.options.bitsPerSample;
 
   for(var i = 0; i < this.data.length; i++) {
     dataView[setIntFunc](i * bytesPerSample, this.data[i], true);

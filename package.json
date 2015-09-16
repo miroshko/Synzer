@@ -3,10 +3,12 @@
   "version": "0.0.0",
   "devDependencies": {
     "atob": "^1.1.2",
+    "browserify": "^11.1.0",
     "btoa": "^1.1.2",
     "jasmine": "*"
   },
   "scripts": {
-    "test": "node_modules/.bin/jasmine"
+    "test": "node_modules/.bin/jasmine",
+    "build": "node_modules/.bin/browserify"
   }
 }
