@@ -1,5 +1,5 @@
 {
-  "name": "Synz",
+  "name": "Synzer",
   "version": "0.0.0",
   "devDependencies": {
     "atob": "^1.1.2",
@@ -9,6 +9,6 @@
   },
   "scripts": {
     "test": "node_modules/.bin/jasmine",
-    "build": "node_modules/.bin/browserify"
+    "build": "node_modules/.bin/browserify js/app.js -o js/prod/app.js"
   }
 }
