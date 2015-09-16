@@ -32,7 +32,6 @@ Wave.prototype._generateHeader = function() {
 
   var subChunk2Size = this.data.length * this.options.bitsPerSample * 8;
   var chunkSize     = 36 + subChunk2Size;
-  var subChunk2Size = 0                       
   var chunkId       = 0x52494646; // RIFF
   var chunkSize     = 36 + subChunk2Size                     
   var format        = 0x57415645; // WAVE
