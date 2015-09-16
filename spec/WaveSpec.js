@@ -70,8 +70,8 @@ describe("Wave", function() {
     });
 
     it('chunkSize', function() {
-      // expect(views[0].getUint32(4, true)).toBe(16);
-      // expect(views[1].getUint32(4, true)).toBe(8);
+      expect(views[0].getUint32(4, true)).toBe(36);
+      expect(views[1].getUint32(4, true)).toBe(36 + 10 * 8 * 8);
     });
 
     it('fmt', function() {
@@ -115,8 +115,8 @@ describe("Wave", function() {
     });
 
     it('SubChunk2Size', function() {
-      // expect(views[0].getUint32(40, true)).toBe(16);
-      // expect(views[1].getUint32(40, true)).toBe(8);
+      expect(views[0].getUint32(40, true)).toBe(0);
+      expect(views[1].getUint32(40, true)).toBe(10 * 8 * 8);
     });
   });
 

@@ -60,7 +60,7 @@ Wave.prototype._generateHeader = function() {
   view.setUint16(32, blockAlign, true)
   view.setUint16(34, bitsPerSample, true)
   view.setUint32(36, subChunk2Id)
-  view.setUint32(40, subChunk2Size)
+  view.setUint32(40, subChunk2Size, true)
 
   return header;
 }
