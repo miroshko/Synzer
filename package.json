@@ -2,10 +2,11 @@
   "name": "Synz",
   "version": "0.0.0",
   "devDependencies": {
+    "atob": "^1.1.2",
+    "btoa": "^1.1.2",
     "jasmine": "*"
   },
   "scripts": {
     "test": "node_modules/.bin/jasmine"
   }
-
 }
