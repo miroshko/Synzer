@@ -20,30 +20,40 @@ describe("Wave", function() {
     it('getDataURI returns a non-empty string', function() {
       expect(wave.getDataURI()).toEqual(jasmine.any(String));
       expect(wave.getDataURI()).not.toEqual("");
-      console.log( wave.getDataURI() )
     });
   });
 
   describe('Wave format has correct header value for', function() {
-    var wave, bin, view;
+    var waves, bin, views = [];
     beforeEach(function() {
-      wave = new Wave();
-      bin = atob(wave.getDataURI());
-      len = bin.length;
-      var bytes = new Uint8Array(len);
-      for (var i = 0; i < len; i++)        {
-          bytes[i] = bin.charCodeAt(i);
+      waves = [
+        new Wave({channels: 1, sampleRate: 8000, bitRate: 16}),
+        new Wave({channels: 2, sampleRate: 44100, bitRate: 8})
+      ];
+      for(var i = 0; i < waves.length; i++) {
+        bin = atob(waves[i].getDataURI());
+        len = bin.length;
+        var bytes = new Uint8Array(len);
+        for (var j = 0; j < len; j++) {
+          bytes[j] = bin.charCodeAt(j);
+        }
+        views[i] = new DataView(bytes.buffer);
       }
-      view = new DataView(bytes.buffer);
     });
 
-    var ch = function(pos) {
-      return String.fromCharCode(view.getUint8(pos))  
+    var str = function(view, pos, length) {
+      var str = '';
+      for(var i = pos; i < pos + length; i++) {
+        str += String.fromCharCode(view.getUint8(i));
+      }
+      return str;
     };
 
     it('RIFF WAVE', function() {
-      expect(ch(0) + ch(1) + ch(2) + ch(3)).toBe('RIFF');
-      expect(ch(8) + ch(9) + ch(10) + ch(11)).toBe('WAVE');
+      expect(str(views[0], 0, 4)).toBe('RIFF');
+      expect(str(views[0], 8, 4)).toBe('WAVE');
+      expect(str(views[1], 0, 4)).toBe('RIFF');
+      expect(str(views[1], 8, 4)).toBe('WAVE');
     });
 
     it('chunkSize', function() {
@@ -51,11 +61,18 @@ describe("Wave", function() {
     });
 
     it('fmt', function() {
-      expect(ch(12) + ch(13) + ch(14)).toBe('fmt');
+      expect(str(views[0], 12, 3)).toBe('fmt');
+      expect(str(views[1], 12, 3)).toBe('fmt');
     });
 
     it('AudioFormat', function() {
+      expect(views[0].getUint16(20, true)).toBe(1);
+      expect(views[1].getUint16(20, true)).toBe(1);
+    });
 
+    it('NumChannels', function() {
+      expect(views[0].getUint16(22, true)).toBe(1);
+      expect(views[1].getUint16(22, true)).toBe(2);
     });
   });
 
