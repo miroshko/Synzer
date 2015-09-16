@@ -1,0 +1,11 @@
+{
+  "name": "Synz",
+  "version": "0.0.0",
+  "devDependencies": {
+    "jasmine": "*"
+  },
+  "scripts": {
+    "test": "node_modules/.bin/jasmine"
+  }
+
+}
