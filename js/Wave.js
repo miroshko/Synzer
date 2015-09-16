@@ -2,7 +2,7 @@ function Wave(options) {
   options = options || {};
   var defaultOptions = {
     channels: 1,
-    bits: 8,
+    bitsPerSample: 8,
     sampleRate: 44100
   };
 
@@ -11,19 +11,34 @@ function Wave(options) {
     this.options[opt] = options[opt] || defaultOptions[opt];
   }
 
-  var subChunk2Size = 0                       // 40   4    data size = NumSamples*NumChannels*BitsPerSample/8
-  var chunkId       = [0x52,0x49,0x46,0x46]   // 0    4    "RIFF" = 0x52494646
-  var chunkSize     = 36 + subChunk2Size                       // 4    4    36+SubChunk2Size = 4+(8+SubChunk1Size)+(8+SubChunk2Size)
-  var format        = [0x57,0x41,0x56,0x45]   // 8    4    "WAVE" = 0x57415645
-  var subChunk1Id   = [0x66,0x6d,0x74,0x20]   // 12   4    "fmt " = 0x666d7420
-  var subChunk1Size = 16                      // 16   4    16 for PCM
-  var audioFormat   = 1                       // 20   2    PCM = 1
-  var numChannels   = options.channels                       // 22   2    Mono = 1, Stereo = 2...
-  var sampleRate    = options.bitrate                    // 24   4    8000, 44100...
-  var bitsPerSample = options.bits                       // 34   2    8 bits = 8, 16 bits = 16
-  var byteRate      = sampleRate * numChannels * bitsPerSample / 8                       // 28   4    SampleRate*NumChannels*BitsPerSample/8
-  var blockAlign    = numChannels * bitsPerSample / 8                    // 32   2    NumChannels*BitsPerSample/8
-  var subChunk2Id   = [0x64,0x61,0x74,0x61]   // 36   4    "data" = 0x64617461
+  // off  size value
+  // 0    4    "RIFF" = 0x52494646
+  // 4    4    ChunkSize (36+SubChunk2Size)
+  // 8    4    "WAVE" = 0x57415645
+  // 12   4    "fmt" = 0x666d7420
+  // 16   4    SubChunk1Size (16 for PCM)
+  // 20   2    AudioFormat (PCM = 1)
+  // 22   2    NumChannels
+  // 24   4    SampleRate
+  // 28   4    SampleRate*NumChannels*BitsPerSample/8
+  // 32   2    NumChannels*BitsPerSample/8
+  // 34   2    BitsPerSample
+  // 36   4    "data" = 0x64617461
+  // 40   4    data size = NumSamples*NumChannels*BitsPerSample/8
+
+  var subChunk2Size = 0                       
+  var chunkId       = [0x52,0x49,0x46,0x46] 
+  var chunkSize     = 36 + subChunk2Size                     
+  var format        = [0x57,0x41,0x56,0x45] 
+  var subChunk1Id   = [0x66,0x6d,0x74,0x20] 
+  var subChunk1Size = 16                    
+  var audioFormat   = 1                     
+  var numChannels   = options.channels                     
+  var sampleRate    = options.sampleRate                  
+  var bitsPerSample = options.bitsPerSample                     
+  var byteRate      = sampleRate * numChannels * bitsPerSample / 8                     
+  var blockAlign    = numChannels * bitsPerSample / 8                  
+  var subChunk2Id   = [0x64,0x61,0x74,0x61] 
 
   var header = new ArrayBuffer(44);
   var view = new DataView(header)
@@ -66,7 +81,7 @@ Wave.prototype.getDataURI = function() {
   for (var i = 0; i < bytes.byteLength; i++) {
     binary += String.fromCharCode(bytes[i]);
   }
-  return btoa(binary);
+  return 'data:audio/wav;base64' + btoa(binary);
 };
 
 module.exports = Wave;
