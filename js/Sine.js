@@ -2,7 +2,7 @@ function extendOptions(def, custom) {
   custom = custom || {};
   var options = {};
   for(var option in def) {
-    options[option] = options[option] || def[option];
+    options[option] = custom[option] || def[option];
   }
   return options;
 }

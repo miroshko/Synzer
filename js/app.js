@@ -6,7 +6,7 @@ var keyboardEl = document.querySelector('.keyboard');
 var audioPool = {};
 
 var keyboard = new Keyboard(keyboardEl);
-keyboard.draw(36, 56);
+keyboard.draw(65, 85);
 keyboard.startMouseListening();
 
 keyboard.on('notePressed', function(note) {

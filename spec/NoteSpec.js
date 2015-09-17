@@ -1,6 +1,6 @@
 var Note = require('../js/Note');
 
-fdescribe('Note', function() {
+describe('Note', function() {
   it('can be created with pitch', function() {
     var note1 = new Note(21);
     expect(note1.letter).toEqual("A");

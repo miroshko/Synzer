@@ -1,4 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var Note = require('./Note');
+
 function Keyboard(el) {
   this.el = el;
   this._events = {};
@@ -32,11 +34,11 @@ Keyboard.prototype.draw = function(lowestNote, highestNote) {
 Keyboard.prototype.startMouseListening = function() {
   var this_ = this;
   this.el.addEventListener('mousedown', function(e) {
-    this_.emit('notePressed', e.target.dataset.pitch);
+    this_.emit('notePressed', new Note(e.target.dataset.pitch));
   });
 
   this.el.addEventListener('mouseup', function(e) {
-    this_.emit('noteReleased', e.target.dataset.pitch);
+    this_.emit('noteReleased', new Note(e.target.dataset.pitch));
   });
 };
 
@@ -55,12 +57,50 @@ Keyboard.prototype.emit = function(eventName) {
 
 module.exports = Keyboard;
 
-},{}],2:[function(require,module,exports){
+},{"./Note":2}],2:[function(require,module,exports){
+function Note(letterWithOctaveOrPitch) {
+  if (!this._parsePitch(letterWithOctaveOrPitch) && !this._parseLetter(letterWithOctaveOrPitch)) {
+    throw new Error('Can not parse ' + letterWithOctaveOrPitch);
+  }
+}
+
+Note.prototype._NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'B', 'H'];
+
+Note.prototype._parsePitch = function(pitch) {
+  // 21 == A0
+  pitch = parseInt(pitch);
+  if (isNaN(pitch) || pitch < 21 || pitch > 108)
+    return false;
+  
+  this.letter = this._NOTES[(pitch - 21 + 9) % 12];
+  this.octave = Math.floor((pitch - 12) / 12);
+  this.pitch = pitch;
+  this.frequency = this._freq(this.pitch);
+  return true;
+};
+
+Note.prototype._parseLetter = function(letterOctave) {
+  var match = letterOctave.match(/([ABCDEFGH]#?)(\d+)/);
+  if (!match.length)
+    return false;
+  this.letter = match[1];
+  this.octave = parseInt(match[2]);
+  this.pitch = this._NOTES.indexOf(this.letter) + 12 * (this.octave + 1);
+  this.frequency = this._freq(this.pitch);
+  return true;
+};
+
+Note.prototype._freq = function(pitch) {
+  return Math.pow(2, (pitch - 20 - 49) / 12) * 440;
+};
+
+module.exports = Note;
+},{}],3:[function(require,module,exports){
 function extendOptions(def, custom) {
   custom = custom || {};
   var options = {};
   for(var option in def) {
-    options[option] = options[option] || def[option];
+    options[option] = custom[option] || def[option];
   }
   return options;
 }
@@ -82,14 +122,13 @@ Sine.prototype.toArray = function() {
   var data = [];
   data.sineOptions = convertingOptions;
 
+  console.log( this.options )
+
   var ratio = convertingOptions.sampleRate / this.options.frequency;
   var durationSamples = convertingOptions.sampleRate * convertingOptions.duration * convertingOptions.channels;
 
-  console.log(durationSamples);
-
   var i = 0;
   while (i < durationSamples) { 
-    // data[i++] = 0;
     data[i++] = 128 + Math.round(this.options.volume * 127 * Math.sin(Math.PI / ratio * i)); // left speaker
     data[i++] = 128 + Math.round(this.options.volume * 127 * Math.sin(Math.PI / ratio * i)); // right speaker
   }
@@ -98,7 +137,7 @@ Sine.prototype.toArray = function() {
 };
 
 module.exports = Sine;
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 function Wave(options) {
   options = options || {};
   var defaultOptions = {
@@ -200,7 +239,7 @@ Wave.prototype.getDataURI = function() {
 };
 
 module.exports = Wave;
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 var Wave = require('./Wave');
 var Keyboard = require('./Keyboard');
 var Sine = require('./Sine');
@@ -209,7 +248,7 @@ var keyboardEl = document.querySelector('.keyboard');
 var audioPool = {};
 
 var keyboard = new Keyboard(keyboardEl);
-keyboard.draw(36, 56);
+keyboard.draw(65, 85);
 keyboard.startMouseListening();
 
 keyboard.on('notePressed', function(note) {
@@ -223,7 +262,7 @@ keyboard.on('notePressed', function(note) {
 
   var sine = new Sine({
     volume: 0.5,
-    frequency: 1000
+    frequency: note.frequency
   });
 
   var data = sine.toArray({
@@ -243,4 +282,4 @@ keyboard.on('noteReleased', function(note) {
 });
 
 
-},{"./Keyboard":1,"./Sine":2,"./Wave":3}]},{},[4]);
+},{"./Keyboard":1,"./Sine":3,"./Wave":4}]},{},[5]);
