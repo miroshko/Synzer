@@ -1,6 +1,6 @@
 var Wave = require('./Wave');
 var Keyboard = require('./Keyboard');
-var Sine = require('Sine');
+var Sine = require('./Sine');
 
 var keyboardEl = document.querySelector('.keyboard');
 var audioPool = {};
@@ -13,17 +13,22 @@ keyboard.on('notePressed', function(note) {
   audioPool[note] = new Audio();
 
   var wave = new Wave({
-    sampleRate: 44100,
+    sampleRate: 8000,
     numChannels: 1,
     bitsPerSample: 8
   });
 
-  var i = 0, data = [];
+  var sine = new Sine({
+    volume: 0.5,
+    frequency: 1000
+  });
 
-  while (i<1000) { 
-    data[i++] = 128+Math.round(127*Math.sin(i/10)); // left speaker
-    data[i++] = 128+Math.round(127*Math.sin(i/200)); // right speaker
-  }
+  var data = sine.toArray({
+    sampleRate: 8000,
+    numChannels: 1,
+    bitsPerSample: 8
+  });
+
   wave.setData(data);
   audioPool[note].src = wave.getDataURI(); // set audio source
   audioPool[note].play();

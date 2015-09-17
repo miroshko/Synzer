@@ -56,6 +56,47 @@ Keyboard.prototype.emit = function(eventName) {
 module.exports = Keyboard;
 
 },{}],2:[function(require,module,exports){
+function extendOptions(def, custom) {
+  custom = custom || {};
+  var options = {};
+  for(var option in def) {
+    options[option] = options[option] || def[option];
+  }
+  return options;
+}
+
+function Sine(options) {
+  this.options = extendOptions({
+    volume: 0.5,
+    frequency: 1000
+  }, options);
+}
+
+Sine.prototype.toArray = function() {
+  var convertingOptions = extendOptions({
+    duration: 1,
+    channels: 1,
+    sampleRate: 8000,
+    bitPerSample: 8
+  });
+  var data = [];
+  data.sineOptions = convertingOptions;
+
+  var i = 0;
+
+  var ratio = convertingOptions.sampleRate / this.options.frequency / 2;
+  console.log(ratio)
+
+  while (i<10000) { 
+    data[i++] = 128 + Math.round(this.options.volume * 127 * Math.sin(Math.PI / ratio * i)); // left speaker
+    data[i++] = 128 + Math.round(this.options.volume * 127 * Math.sin(Math.PI / ratio * i)); // right speaker
+  }
+
+  return data;
+};
+
+module.exports = Sine;
+},{}],3:[function(require,module,exports){
 function Wave(options) {
   options = options || {};
   var defaultOptions = {
@@ -157,9 +198,10 @@ Wave.prototype.getDataURI = function() {
 };
 
 module.exports = Wave;
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 var Wave = require('./Wave');
 var Keyboard = require('./Keyboard');
+var Sine = require('./Sine');
 
 var keyboardEl = document.querySelector('.keyboard');
 var audioPool = {};
@@ -170,16 +212,24 @@ keyboard.startMouseListening();
 
 keyboard.on('notePressed', function(note) {
   audioPool[note] = new Audio();
+
   var wave = new Wave({
-    sampleRate: 44100,
+    sampleRate: 8000,
     numChannels: 1,
     bitsPerSample: 8
   });
-  var i = 0, data = [];
-  while (i<1000) { 
-    data[i++] = 128+Math.round(127*Math.sin(i/10)); // left speaker
-    data[i++] = 128+Math.round(127*Math.sin(i/200)); // right speaker
-  }
+
+  var sine = new Sine({
+    volume: 0.5,
+    frequency: 1000
+  });
+
+  var data = sine.toArray({
+    sampleRate: 8000,
+    numChannels: 1,
+    bitsPerSample: 8
+  });
+
   wave.setData(data);
   audioPool[note].src = wave.getDataURI(); // set audio source
   audioPool[note].play();
@@ -190,4 +240,4 @@ keyboard.on('noteReleased', function(note) {
 });
 
 
-},{"./Keyboard":1,"./Wave":2}]},{},[3]);
+},{"./Keyboard":1,"./Sine":2,"./Wave":3}]},{},[4]);
