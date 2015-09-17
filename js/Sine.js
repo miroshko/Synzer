@@ -14,13 +14,13 @@ function Sine(options) {
   }, options);
 }
 
-Sine.prototype.toArray = function() {
+Sine.prototype.toArray = function(options) {
   var convertingOptions = extendOptions({
     duration: 1,
     channels: 2,
     sampleRate: 8000,
     bitPerSample: 8
-  });
+  }, options);
   var data = [];
   data.sineOptions = convertingOptions;
 
@@ -30,7 +30,9 @@ Sine.prototype.toArray = function() {
   var i = 0;
   while (i < durationSamples) { 
     data[i++] = 128 + Math.round(this.options.volume * 127 * Math.sin(Math.PI / ratio * i)); // left speaker
-    data[i++] = 128 + Math.round(this.options.volume * 127 * Math.sin(Math.PI / ratio * i)); // right speaker
+    if (convertingOptions.channels == 2) {
+      data[i++] = 128 + Math.round(this.options.volume * 127 * Math.sin(Math.PI / ratio * i)); // right speaker
+    }
   }
 
   return data;
