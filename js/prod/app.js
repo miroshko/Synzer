@@ -75,19 +75,21 @@ function Sine(options) {
 Sine.prototype.toArray = function() {
   var convertingOptions = extendOptions({
     duration: 1,
-    channels: 1,
+    channels: 2,
     sampleRate: 8000,
     bitPerSample: 8
   });
   var data = [];
   data.sineOptions = convertingOptions;
 
+  var ratio = convertingOptions.sampleRate / this.options.frequency;
+  var durationSamples = convertingOptions.sampleRate * convertingOptions.duration * convertingOptions.channels;
+
+  console.log(durationSamples);
+
   var i = 0;
-
-  var ratio = convertingOptions.sampleRate / this.options.frequency / 2;
-  console.log(ratio)
-
-  while (i<10000) { 
+  while (i < durationSamples) { 
+    // data[i++] = 0;
     data[i++] = 128 + Math.round(this.options.volume * 127 * Math.sin(Math.PI / ratio * i)); // left speaker
     data[i++] = 128 + Math.round(this.options.volume * 127 * Math.sin(Math.PI / ratio * i)); // right speaker
   }
@@ -215,7 +217,7 @@ keyboard.on('notePressed', function(note) {
 
   var wave = new Wave({
     sampleRate: 8000,
-    numChannels: 1,
+    channels: 2,
     bitsPerSample: 8
   });
 
@@ -225,8 +227,9 @@ keyboard.on('notePressed', function(note) {
   });
 
   var data = sine.toArray({
+    duration: 1,
     sampleRate: 8000,
-    numChannels: 1,
+    channels: 2,
     bitsPerSample: 8
   });
 

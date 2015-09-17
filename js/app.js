@@ -14,7 +14,7 @@ keyboard.on('notePressed', function(note) {
 
   var wave = new Wave({
     sampleRate: 8000,
-    numChannels: 1,
+    channels: 2,
     bitsPerSample: 8
   });
 
@@ -24,8 +24,9 @@ keyboard.on('notePressed', function(note) {
   });
 
   var data = sine.toArray({
+    duration: 1,
     sampleRate: 8000,
-    numChannels: 1,
+    channels: 2,
     bitsPerSample: 8
   });
 
