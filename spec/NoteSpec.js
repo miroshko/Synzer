@@ -21,4 +21,9 @@ fdescribe('Note', function() {
     expect(function() {new Note("nn");}).toThrow();
     expect(function() {new Note("N#6");}).toThrow();
   });
+
+  it('calculates frequencies correctly', function() {
+    expect(new Note('A4').frequency).toEqual(440);
+    expect(new Note('F6').frequency).toBeCloseTo(1396.91);
+  });
 });

@@ -15,6 +15,7 @@ Note.prototype._parsePitch = function(pitch) {
   this.letter = this._NOTES[(pitch - 21 + 9) % 12];
   this.octave = Math.floor((pitch - 12) / 12);
   this.pitch = pitch;
+  this.frequency = this._freq(this.pitch);
   return true;
 };
 
@@ -24,9 +25,13 @@ Note.prototype._parseLetter = function(letterOctave) {
     return false;
   this.letter = match[1];
   this.octave = parseInt(match[2]);
-  this.pitch = this._NOTES.indexOf(this.letter) + 12 * (this.octave + 1)
-
+  this.pitch = this._NOTES.indexOf(this.letter) + 12 * (this.octave + 1);
+  this.frequency = this._freq(this.pitch);
   return true;
+};
+
+Note.prototype._freq = function(pitch) {
+  return Math.pow(2, (pitch - 20 - 49) / 12) * 440;
 };
 
 module.exports = Note;
