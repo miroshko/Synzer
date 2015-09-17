@@ -1,6 +1,7 @@
 var Wave = require('./Wave');
 var Keyboard = require('./Keyboard');
 var Sine = require('./Sine');
+var Note = require('./Note');
 
 var keyboardEl = document.querySelector('.keyboard');
 var audioPool = {};

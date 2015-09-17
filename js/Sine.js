@@ -27,8 +27,6 @@ Sine.prototype.toArray = function() {
   var ratio = convertingOptions.sampleRate / this.options.frequency;
   var durationSamples = convertingOptions.sampleRate * convertingOptions.duration * convertingOptions.channels;
 
-  console.log(durationSamples);
-
   var i = 0;
   while (i < durationSamples) { 
     data[i++] = 128 + Math.round(this.options.volume * 127 * Math.sin(Math.PI / ratio * i)); // left speaker

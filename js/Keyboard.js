@@ -1,3 +1,5 @@
+var Note = require('./Note');
+
 function Keyboard(el) {
   this.el = el;
   this._events = {};
@@ -31,11 +33,11 @@ Keyboard.prototype.draw = function(lowestNote, highestNote) {
 Keyboard.prototype.startMouseListening = function() {
   var this_ = this;
   this.el.addEventListener('mousedown', function(e) {
-    this_.emit('notePressed', e.target.dataset.pitch);
+    this_.emit('notePressed', new Note(e.target.dataset.pitch));
   });
 
   this.el.addEventListener('mouseup', function(e) {
-    this_.emit('noteReleased', e.target.dataset.pitch);
+    this_.emit('noteReleased', new Note(e.target.dataset.pitch));
   });
 };
 
