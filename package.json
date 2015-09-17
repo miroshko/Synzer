@@ -5,7 +5,8 @@
     "atob": "^1.1.2",
     "browserify": "^11.1.0",
     "btoa": "^1.1.2",
-    "jasmine": "*"
+    "jasmine": "*",
+    "node-dom": "^0.1.0"
   },
   "scripts": {
     "test": "node_modules/.bin/jasmine",

@@ -1,10 +1,19 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 function Keyboard(el) {
   this.el = el;
+  this._events = {};
 }
 
-Keyboard.prototype.parseNote = function() {
+Keyboard.prototype.pitchToNote = function(pitch) {
+  // 21 == A0
+  pitch = parseInt(pitch);
+  if (isNaN(pitch) || pitch < 21 || pitch > 108)
+    throw new Error(pitch + ' is an invalid pitch');
 
+  var notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'B', 'H'];
+  var letter = notes[(pitch - 21 + 9) % 12];
+  var octave = Math.floor((pitch - 12) / 12);
+  return {letter: letter, octave: octave};
 };
 
 Keyboard.prototype.draw = function(lowestNote, highestNote) {
@@ -13,8 +22,35 @@ Keyboard.prototype.draw = function(lowestNote, highestNote) {
     key = document.createElement('div');
     key.dataset.pitch = i;
     key.classList.add('key');
+    if (['C#', 'D#', 'F#', 'G#', 'B'].indexOf(this.pitchToNote(i).letter) > -1) {
+      key.classList.add('key-black');
+    }
     this.el.appendChild(key);
   }
+};
+
+Keyboard.prototype.startMouseListening = function() {
+  var this_ = this;
+  this.el.addEventListener('mousedown', function(e) {
+    this_.emit('notePressed', e.target.dataset.pitch);
+  });
+
+  this.el.addEventListener('mouseup', function(e) {
+    this_.emit('noteReleased', e.target.dataset.pitch);
+  });
+};
+
+Keyboard.prototype.on = function(eventName, callback) {
+  this._events[eventName] = this._events[eventName] || [];
+  this._events[eventName].push(callback);
+};
+
+Keyboard.prototype.emit = function(eventName) {
+  var args = Array.prototype.slice.call(arguments, 1);
+
+  this._events[eventName].forEach(function(callback) {
+    callback.apply(null, args);
+  });
 };
 
 module.exports = Keyboard;
@@ -126,13 +162,32 @@ var Wave = require('./Wave');
 var Keyboard = require('./Keyboard');
 
 var keyboardEl = document.querySelector('.keyboard');
-keyboard = new Keyboard(keyboardEl);
-keyboard.draw('10', '20');
+var audioPool = {};
 
-keyboard.on('notePressed', function() {
+var keyboard = new Keyboard(keyboardEl);
+keyboard.draw(36, 56);
+keyboard.startMouseListening();
 
+keyboard.on('notePressed', function(note) {
+  audioPool[note] = new Audio();
+  var wave = new Wave({
+    sampleRate: 44100,
+    numChannels: 1,
+    bitsPerSample: 8
+  });
+  var i = 0, data = [];
+  while (i<1000) { 
+    data[i++] = 128+Math.round(127*Math.sin(i/10)); // left speaker
+    data[i++] = 128+Math.round(127*Math.sin(i/200)); // right speaker
+  }
+  wave.setData(data);
+  audioPool[note].src = wave.getDataURI(); // set audio source
+  audioPool[note].play();
 });
-keyboard.on('noteReleased', function() {
 
+keyboard.on('noteReleased', function(note) {
+  console.log("RELEASED", note)
 });
+
+
 },{"./Keyboard":1,"./Wave":2}]},{},[3]);
