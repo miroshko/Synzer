@@ -1,4 +1,25 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+function Keyboard(el) {
+  this.el = el;
+}
+
+Keyboard.prototype.parseNote = function() {
+
+};
+
+Keyboard.prototype.draw = function(lowestNote, highestNote) {
+  var key;
+  for(var i = lowestNote; i < highestNote; i++) {
+    key = document.createElement('div');
+    key.dataset.pitch = i;
+    key.classList.add('key');
+    this.el.appendChild(key);
+  }
+};
+
+module.exports = Keyboard;
+
+},{}],2:[function(require,module,exports){
 function Wave(options) {
   options = options || {};
   var defaultOptions = {
@@ -100,22 +121,18 @@ Wave.prototype.getDataURI = function() {
 };
 
 module.exports = Wave;
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 var Wave = require('./Wave');
+var Keyboard = require('./Keyboard');
 
-var wav = new Wave();
-var data = [];
-var i = 0;
-while (i<100000) { 
-  data[i++] = 128+Math.round(127*Math.sin(i/10)); // left speaker
-  data[i++] = 128+Math.round(127*Math.sin(i/200)); // right speaker
-}
-wav.setData(data);
-var dataURI = wav.getDataURI();
+var keyboardEl = document.querySelector('.keyboard');
+keyboard = new Keyboard(keyboardEl);
+keyboard.draw('10', '20');
 
-var audio = new Audio(); // create the HTML5 audio element
-audio.src = dataURI; // set audio source
-audio.play(); // we should hear two tones one on each speaker
-console.log("PLAY")
+keyboard.on('notePressed', function() {
 
-},{"./Wave":1}]},{},[2]);
+});
+keyboard.on('noteReleased', function() {
+
+});
+},{"./Keyboard":1,"./Wave":2}]},{},[3]);
