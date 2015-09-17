@@ -36,6 +36,6 @@ keyboard.on('notePressed', function(note) {
 });
 
 keyboard.on('noteReleased', function(note) {
-  console.log("RELEASED", note)
+
 });
 

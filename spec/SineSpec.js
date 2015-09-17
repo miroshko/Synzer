@@ -12,6 +12,7 @@ describe('Sine', function() {
     }
     expect(maxValue).toBe(Math.round(128 + 127 * 0.25));
   });
+
   it('with given frequency', function() {
     sine = new Sine({volume: 1, frequency: 1000});
     var converted = sine.toArray({duration: 1, channels: 1, sampleRate: 44100, bitRate: 8});
