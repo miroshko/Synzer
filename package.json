@@ -6,10 +6,11 @@
     "browserify": "^11.1.0",
     "btoa": "^1.1.2",
     "jasmine": "*",
-    "node-dom": "^0.1.0"
+    "node-dom": "^0.1.0",
+    "stringify": "^3.1.0"
   },
   "scripts": {
     "test": "node_modules/.bin/jasmine",
-    "build": "node_modules/.bin/browserify js/app.js -o js/prod/app.js"
+    "build": "node_modules/.bin/browserify js/app.js -t stringify -o js/prod/app.js"
   }
 }

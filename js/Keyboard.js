@@ -1,21 +1,12 @@
 var Note = require('./Note');
+var MediatorMixin = require('./MediatorMixin');
 
 function Keyboard(el) {
   this.el = el;
-  this._events = {};
+  MediatorMixin.call(this);
 }
 
-Keyboard.prototype.pitchToNote = function(pitch) {
-  // 21 == A0
-  pitch = parseInt(pitch);
-  if (isNaN(pitch) || pitch < 21 || pitch > 108)
-    throw new Error(pitch + ' is an invalid pitch');
 
-  var notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'B', 'H'];
-  var letter = notes[(pitch - 21 + 9) % 12];
-  var octave = Math.floor((pitch - 12) / 12);
-  return {letter: letter, octave: octave};
-};
 
 Keyboard.prototype.draw = function(lowestNote, highestNote) {
   var key;
@@ -23,7 +14,7 @@ Keyboard.prototype.draw = function(lowestNote, highestNote) {
     key = document.createElement('div');
     key.dataset.pitch = i;
     key.classList.add('key');
-    if (['C#', 'D#', 'F#', 'G#', 'B'].indexOf(this.pitchToNote(i).letter) > -1) {
+    if (['C#', 'D#', 'F#', 'G#', 'B'].indexOf(new Note(i).letter) > -1) {
       key.classList.add('key-black');
     }
     this.el.appendChild(key);

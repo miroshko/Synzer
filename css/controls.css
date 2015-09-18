@@ -1,0 +1,25 @@
+.wave-form {
+  display: inline-block;
+  width: 80px;
+  height: 80px;
+  text-align: center;
+}
+
+.wave-form .img {
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  background-size: 100%;
+}
+
+.sine .img {
+  background-image: url(../img/sine.png);
+}
+
+.square .img {
+  background-image: url(../img/square.png);
+}
+
+.saw .img {
+  background-image: url(../img/saw.png);
+}
