@@ -254,22 +254,28 @@ keyboard.startMouseListening();
 keyboard.on('notePressed', function(note) {
   audioPool[note] = new Audio();
 
+  var sampleRate = 8000;
+  var channels = 2;
+  var bitsPerSample = 8;
+  var volume = 0.5;
+  var duration = 1;
+
   var wave = new Wave({
-    sampleRate: 8000,
-    channels: 2,
-    bitsPerSample: 8
+    sampleRate: sampleRate,
+    channels: channels,
+    bitsPerSample: bitsPerSample
   });
 
   var sine = new Sine({
-    volume: 0.5,
+    volume: volume,
     frequency: note.frequency
   });
 
   var data = sine.toArray({
-    duration: 1,
-    sampleRate: 8000,
-    channels: 2,
-    bitsPerSample: 8
+    duration: duration,
+    sampleRate: sampleRate,
+    channels: channels,
+    bitsPerSample: bitsPerSample
   });
 
   wave.setData(data);
@@ -278,7 +284,7 @@ keyboard.on('notePressed', function(note) {
 });
 
 keyboard.on('noteReleased', function(note) {
-  console.log("RELEASED", note)
+
 });
 
 
