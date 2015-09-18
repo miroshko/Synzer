@@ -252,8 +252,6 @@ keyboard.draw(65, 85);
 keyboard.startMouseListening();
 
 keyboard.on('notePressed', function(note) {
-  audioPool[note] = new Audio();
-
   var sampleRate = 8000;
   var channels = 2;
   var bitsPerSample = 8;
@@ -279,12 +277,21 @@ keyboard.on('notePressed', function(note) {
   });
 
   wave.setData(data);
-  audioPool[note].src = wave.getDataURI(); // set audio source
+
+  audioPool[note] = new Audio();
+  audioPool[note].src = wave.getDataURI();
+  audioPool[note].loop = true;
+
   audioPool[note].play();
+
 });
 
 keyboard.on('noteReleased', function(note) {
-
+  if (audioPool[note]) {
+    console.log(audioPool)
+    audioPool[note].pause();
+    audioPool[note].src = "";
+  }
 });
 
 
