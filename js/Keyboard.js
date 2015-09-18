@@ -6,8 +6,6 @@ function Keyboard(el) {
   MediatorMixin.call(this);
 }
 
-
-
 Keyboard.prototype.draw = function(lowestNote, highestNote) {
   var key;
   for(var i = lowestNote; i < highestNote; i++) {

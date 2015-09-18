@@ -1,26 +1,25 @@
 var Keyboard = require('./Keyboard');
 var Controls = require('./Controls');
+var Synth = require('./Synth');
 
 var keyboardEl = document.querySelector('.keyboard');
 var controlsEl = document.querySelector('.controls');
 
+var synth = new Synth();
 var controls = new Controls(controlsEl);
+controls.activate();
+controls.on('waveFormChanged', function(type) {
+  synth.setWaveForm(type);
+});
 
 var keyboard = new Keyboard(keyboardEl);
 keyboard.draw(65, 85);
 keyboard.startMouseListening();
 
-var oscillators = {};
-var context = new AudioContext;
-
 keyboard.on('notePressed', function(note) {
-  oscillator = oscillators[note.pitch] = context.createOscillator();
-  oscillator.frequency.value = note.frequency;
-  oscillator.connect(context.destination);
-  oscillator.start(0);
+  synth.play(note);
 });
 
 keyboard.on('noteReleased', function(note) {
-  oscillators[note.pitch].stop(0);
+  synth.stop(note);
 });
-
