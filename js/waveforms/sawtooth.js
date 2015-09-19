@@ -1,7 +1,7 @@
-var context = new AudioContext();
+var context = new global.AudioContext();
 var approaches = 128;
-var real = new Float32Array(approaches);
-var imag = new Float32Array(approaches);
+var real = new global.Float32Array(approaches);
+var imag = new global.Float32Array(approaches);
 
 real[0] = 0.5;
 for (var i = 1; i < approaches; i++) {

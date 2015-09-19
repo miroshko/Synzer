@@ -124,27 +124,27 @@ Note.prototype._freq = function(pitch) {
 
 module.exports = Note;
 },{}],5:[function(require,module,exports){
-var saw = require('./waveforms/saw');
+var sawtooth = require('./waveforms/sawtooth');
 var square = require('./waveforms/square');
 var sine = require('./waveforms/sine');
 
 function Synth() {
   this.oscillators = {};
   this.context = new AudioContext;
-  this._waveForm = sine;
+  this._waveForm = null;
 }
 
 Synth.prototype.setWaveForm = function(waveForm) {
   this._waveForm = {
-    'saw': saw,
+    'sawtooth': sawtooth,
     'square': square,
     'sine': sine
-  }[waveForm] || sine;
+  }[waveForm];
 };
 
 Synth.prototype.play = function(note) {
   oscillator = this.oscillators[note.pitch] = this.context.createOscillator();
-  oscillator.setPeriodicWave(this._waveForm);
+  oscillator.setPeriodicWave(this._waveForm || sine);
   oscillator.frequency.value = note.frequency;
   oscillator.connect(this.context.destination);
   oscillator.start(0);
@@ -155,7 +155,7 @@ Synth.prototype.stop = function(note) {
 };
 
 module.exports = Synth;
-},{"./waveforms/saw":7,"./waveforms/sine":8,"./waveforms/square":9}],6:[function(require,module,exports){
+},{"./waveforms/sawtooth":7,"./waveforms/sine":8,"./waveforms/square":9}],6:[function(require,module,exports){
 var Keyboard = require('./Keyboard');
 var Controls = require('./Controls');
 var Synth = require('./Synth');
@@ -165,7 +165,7 @@ var controlsEl = document.querySelector('.controls');
 
 var synth = new Synth();
 var controls = new Controls(controlsEl);
-controls.activate();
+
 controls.on('wave-form-change', function(type) {
   synth.setWaveForm(type);
 });
@@ -177,6 +177,8 @@ controls.on('volume-change', function(value) {
 controls.on('pan-change', function(value) {
   synth.setPan(value);
 });
+
+controls.activate();
 
 var keyboard = new Keyboard(keyboardEl);
 keyboard.draw(65, 85);
@@ -228,6 +230,6 @@ var wave = context.createPeriodicWave(real, imag);
 module.exports = wave;
 
 },{}],10:[function(require,module,exports){
-module.exports = "<link rel=\"stylesheet\" href=\"css/controls.css\">\n\n<div class=\"volume-pan-container\">\n  <label class=\"volume\">\n    <span>Volume</span>\n    <input class=\"number volume\" name=\"volume\" value=\"50\" min=\"0\" max=\"100\" type=\"number\">\n  </label>\n  <label class=\"pan\">\n    <span>Pan</span>\n    <input class=\"number volume\" name=\"pan\" value=\"0\" min=\"-50\" max=\"50\" type=\"number\">\n  </label>\n</div>\n\n<div class=\"wave-form-container\">\n  <label class=\"wave-form sine\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"sine\" checked>\n  </label>\n  <label class=\"wave-form saw\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"saw\">\n  </label>\n  <label class=\"wave-form square\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"square\">\n  </label>\n</div>\n";
+module.exports = "<link rel=\"stylesheet\" href=\"css/controls.css\">\n\n<div class=\"volume-pan-container\">\n  <label class=\"volume\">\n    <span>Volume</span>\n    <input class=\"number volume\" name=\"volume\" value=\"50\" min=\"0\" max=\"100\" type=\"number\">\n  </label>\n  <label class=\"pan\">\n    <span>Pan</span>\n    <input class=\"number volume\" name=\"pan\" value=\"0\" min=\"-50\" max=\"50\" type=\"number\">\n  </label>\n</div>\n\n<div class=\"wave-form-container\">\n  <label class=\"wave-form sine\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"sine\" checked>\n  </label>\n  <label class=\"wave-form sawtooth\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"sawtooth\">\n  </label>\n  <label class=\"wave-form square\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"square\">\n  </label>\n</div>\n";
 
 },{}]},{},[6]);

@@ -1,24 +1,25 @@
-var saw = require('./waveforms/saw');
+var sawtooth = require('./waveforms/sawtooth');
 var square = require('./waveforms/square');
 var sine = require('./waveforms/sine');
 
 function Synth() {
   this.oscillators = {};
-  this.context = new AudioContext;
-  this._waveForm = sine;
+  this.context = new global.AudioContext;
+  this._waveForm = null;
 }
 
 Synth.prototype.setWaveForm = function(waveForm) {
   this._waveForm = {
-    'saw': saw,
+    'sawtooth': sawtooth,
     'square': square,
     'sine': sine
-  }[waveForm] || sine;
+  }[waveForm];
 };
 
 Synth.prototype.play = function(note) {
   oscillator = this.oscillators[note.pitch] = this.context.createOscillator();
-  oscillator.setPeriodicWave(this._waveForm);
+
+  oscillator.setPeriodicWave(this._waveForm || sine);
   oscillator.frequency.value = note.frequency;
   oscillator.connect(this.context.destination);
   oscillator.start(0);
