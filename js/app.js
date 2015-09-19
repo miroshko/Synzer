@@ -23,7 +23,7 @@ controls.on('pan-change', function(value) {
 controls.activate();
 
 var keyboard = new Keyboard(keyboardEl);
-keyboard.draw(65, 85);
+keyboard.draw(60, 84);
 keyboard.startMouseListening();
 
 keyboard.on('notePressed', function(note) {

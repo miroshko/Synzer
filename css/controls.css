@@ -1,7 +1,7 @@
 @import url(https://fonts.googleapis.com/css?family=Indie+Flower);
 
 .controls {
-  width: 490px;
+  width: 510px;
   font-family: 'Indie Flower';
   font-size: 22px;
 }
@@ -10,14 +10,16 @@
   display: inline-block;
   margin-top: 10px;
   width: 300px;
+  text-align: right;
   vertical-align: top;
 }
 
 .col1-container {
   display: inline-block;
   margin-top: 10px;
-  width: 160px;
+  width: 150px;
   text-align: right;
+  vertical-align: top;
 }
 
 .wave-form {
@@ -48,6 +50,10 @@
 
 [type="number"] {
   width: 45px;
+  padding: 5px;
+  border: 0;
+  background: url(../img/input.png) 50% 50% no-repeat;
+  background-size: 100%;
 }
 
 h1, h2, h3 {
