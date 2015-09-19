@@ -50,14 +50,25 @@ Keyboard.prototype.draw = function(lowestNote, highestNote) {
 
 Keyboard.prototype.startMouseListening = function() {
   var this_ = this;
+
+  function pressed(el) {
+    el.classList.add('pressed');
+    this_.emit('notePressed', new Note(el.dataset.pitch));
+  }
+
+  function released(el) {
+    el.classList.remove('pressed');
+    this_.emit('noteReleased', new Note(el.dataset.pitch));
+  }
+
   this.el.addEventListener('mousedown', function(e) {
     this_._mouseDown = true;
-    this_.emit('notePressed', new Note(e.target.dataset.pitch));
+    pressed(e.target);
   });
 
   this.el.addEventListener('mouseover', function(e) {
     if (this_._mouseDown) {
-      this_.emit('notePressed', new Note(e.target.dataset.pitch));
+      pressed(e.target);
     }
   });
 
@@ -67,13 +78,13 @@ Keyboard.prototype.startMouseListening = function() {
 
   this.el.addEventListener('mouseout', function(e) {
     if (this_._mouseDown) {
-      this_.emit('noteReleased', new Note(e.target.dataset.pitch));
+      released(e.target);
     }
   });
 
   this.el.addEventListener('mouseup', function(e) {
     if (this_._mouseDown) {
-      this_.emit('noteReleased', new Note(e.target.dataset.pitch));
+      released(e.target);
     }
     this_._mouseDown = false;
   });
