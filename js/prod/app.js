@@ -189,6 +189,10 @@ function Synth() {
   this._waveForm = null;
 }
 
+// defaults
+Synth.prototype._pan = 0;
+Synth.prototype._volume = 0.5;
+
 Synth.prototype.setWaveForm = function(waveForm) {
   this._waveForm = {
     'sawtooth': sawtooth,
@@ -198,20 +202,19 @@ Synth.prototype.setWaveForm = function(waveForm) {
 };
 
 Synth.prototype.setVolume = function(volume) {
-  this._volume = volume;
-  console.log("SET TO " + volume)
-  // for(var pitch in this.gainNodes) {
-  //   this.gainNodes[pitch] = this._volume;
-  // }
+  this.volume = volume;
+  this.gain.gain.value = this.volume;
 };
 
 Synth.prototype.setPan = function(pan) {
-  this._pan = pan;
+  this.pan = pan;
+  this.stereoPanner.pan.value = this.pan;
 };
 
 Synth.prototype.play = function(note) {
+  var oscillator;
   if (!this.oscillators[note.pitch]) {
-    this.oscillators[note.pitch] = this.context.createOscillator()
+    oscillator = this.oscillators[note.pitch] = this.context.createOscillator()
   }
 
   oscillator.setPeriodicWave(this._waveForm || sine);

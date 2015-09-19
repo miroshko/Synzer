@@ -18,6 +18,10 @@ function Synth() {
   this._waveForm = null;
 }
 
+// defaults
+Synth.prototype._pan = 0;
+Synth.prototype._volume = 0.5;
+
 Synth.prototype.setWaveForm = function(waveForm) {
   this._waveForm = {
     'sawtooth': sawtooth,
@@ -27,11 +31,13 @@ Synth.prototype.setWaveForm = function(waveForm) {
 };
 
 Synth.prototype.setVolume = function(volume) {
-  this.gain.gain.value = volume;
+  this.volume = volume;
+  this.gain.gain.value = this.volume;
 };
 
 Synth.prototype.setPan = function(pan) {
-  this.stereoPanner.pan.value = pan;
+  this.pan = pan;
+  this.stereoPanner.pan.value = this.pan;
 };
 
 Synth.prototype.play = function(note) {
