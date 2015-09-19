@@ -8,8 +8,16 @@ var controlsEl = document.querySelector('.controls');
 var synth = new Synth();
 var controls = new Controls(controlsEl);
 controls.activate();
-controls.on('waveFormChanged', function(type) {
+controls.on('wave-form-change', function(type) {
   synth.setWaveForm(type);
+});
+
+controls.on('volume-change', function(value) {
+  synth.setVolume(value);
+});
+
+controls.on('pan-change', function(value) {
+  synth.setPan(value);
 });
 
 var keyboard = new Keyboard(keyboardEl);

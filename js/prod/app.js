@@ -12,10 +12,8 @@ function Controls(el) {
 Controls.prototype.activate = function() {
   var this_ = this;
   this.el.addEventListener('change', function(e) {
-    if (e.target.name == 'wave-form') {
-      this_.emit('waveFormChanged', e.target.value);
-    }
-  })
+    this_.emit(e.target.name + '-change', e.target.value);
+  });
 }
 
 module.exports = Controls;
@@ -78,9 +76,11 @@ function MediatorMixin() {
   this.emit = function(eventName) {
     var args = Array.prototype.slice.call(arguments, 1);
 
-    this._events[eventName].forEach(function(callback) {
-      callback.apply(null, args);
-    });
+    if (this._events[eventName]) {
+      this._events[eventName].forEach(function(callback) {
+        callback.apply(null, args);
+      });
+    }
   };
 };
 
@@ -166,8 +166,16 @@ var controlsEl = document.querySelector('.controls');
 var synth = new Synth();
 var controls = new Controls(controlsEl);
 controls.activate();
-controls.on('waveFormChanged', function(type) {
+controls.on('wave-form-change', function(type) {
   synth.setWaveForm(type);
+});
+
+controls.on('volume-change', function(value) {
+  synth.setVolume(value);
+});
+
+controls.on('pan-change', function(value) {
+  synth.setPan(value);
 });
 
 var keyboard = new Keyboard(keyboardEl);
@@ -205,8 +213,21 @@ var wave = context.createPeriodicWave(realCoeffs, imagCoeffs);
 
 module.exports = wave;
 },{}],9:[function(require,module,exports){
+var context = new AudioContext();
+var approaches = 128;
+var real = new Float32Array(approaches);
+var imag = new Float32Array(approaches);
+
+real[0] = 0;
+for (var i = 1; i < approaches; i++) {
+  imag[i] = i % 2 == 0 ? 0 : 4 / (i * Math.PI);
+}
+
+var wave = context.createPeriodicWave(real, imag);
+
+module.exports = wave;
 
 },{}],10:[function(require,module,exports){
-module.exports = "<link rel=\"stylesheet\" href=\"css/controls.css\">\n<div class=\"wave-form-container\">\n  <label class=\"wave-form sine\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"sine\" checked>\n  </label>\n  <label class=\"wave-form saw\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"saw\">\n  </label>\n  <label class=\"wave-form square\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"square\">\n  </label>\n</div>";
+module.exports = "<link rel=\"stylesheet\" href=\"css/controls.css\">\n\n<div class=\"volume-pan-container\">\n  <label class=\"volume\">\n    <span>Volume</span>\n    <input class=\"number volume\" name=\"volume\" value=\"50\" min=\"0\" max=\"100\" type=\"number\">\n  </label>\n  <label class=\"pan\">\n    <span>Pan</span>\n    <input class=\"number volume\" name=\"pan\" value=\"0\" min=\"-50\" max=\"50\" type=\"number\">\n  </label>\n</div>\n\n<div class=\"wave-form-container\">\n  <label class=\"wave-form sine\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"sine\" checked>\n  </label>\n  <label class=\"wave-form saw\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"saw\">\n  </label>\n  <label class=\"wave-form square\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"square\">\n  </label>\n</div>\n";
 
 },{}]},{},[6]);

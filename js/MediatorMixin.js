@@ -8,9 +8,11 @@ function MediatorMixin() {
   this.emit = function(eventName) {
     var args = Array.prototype.slice.call(arguments, 1);
 
-    this._events[eventName].forEach(function(callback) {
-      callback.apply(null, args);
-    });
+    if (this._events[eventName]) {
+      this._events[eventName].forEach(function(callback) {
+        callback.apply(null, args);
+      });
+    }
   };
 };
 

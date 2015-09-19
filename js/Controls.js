@@ -11,10 +11,8 @@ function Controls(el) {
 Controls.prototype.activate = function() {
   var this_ = this;
   this.el.addEventListener('change', function(e) {
-    if (e.target.name == 'wave-form') {
-      this_.emit('waveFormChanged', e.target.value);
-    }
-  })
+    this_.emit(e.target.name + '-change', e.target.value);
+  });
 }
 
 module.exports = Controls;
