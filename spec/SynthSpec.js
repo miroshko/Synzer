@@ -13,17 +13,19 @@ describe('Synth', function() {
     oscillator.frequency = {};
     gainNode = jasmine.createSpyObj('gainNode', ['connect']);
     gainNode.gain = {};
-
+    stereoPanner = jasmine.createSpyObj('stereoPanner', ['connect']);
+    stereoPanner.pan = {};
 
     audioContext = {
       createOscillator: function() {},
       createPeriodicWave: function() {},
+      createStereoPanner: function() {},
       createGain: function() {}
     };
 
     spyOn(audioContext, 'createOscillator').and.returnValue(oscillator);
     spyOn(audioContext, 'createGain').and.returnValue(gainNode);
-    spyOn(audioContext, 'createPeriodicWave').and.returnValue({periodicWave: true});
+    spyOn(audioContext, 'createStereoPanner').and.returnValue(stereoPanner);
 
     global.AudioContext = function() { return audioContext; };
 
@@ -67,6 +69,8 @@ describe('Synth', function() {
   });
 
   it('sets pan', function() {
-
+    synth.setPan(40);
+    synth.play(aNote);
+    expect(stereoPanner.pan.value).toBe(0.8);
   });
 });
