@@ -1,20 +1,22 @@
 @import url(https://fonts.googleapis.com/css?family=Indie+Flower);
 
 .controls {
-  width: 650px;
+  width: 490px;
   font-family: 'Indie Flower';
   font-size: 22px;
 }
 
-.wave-form-container {
+.col2-container {
   display: inline-block;
+  margin-top: 10px;
   width: 300px;
   vertical-align: top;
 }
 
-.volume-pan-container {
+.col1-container {
   display: inline-block;
-  width: 150px;
+  margin-top: 10px;
+  width: 160px;
   text-align: right;
 }
 
@@ -44,6 +46,10 @@
   background-image: url(../img/sawtooth.png);
 }
 
-.number {
+[type="number"] {
   width: 45px;
+}
+
+h1, h2, h3 {
+  margin: 0;
 }

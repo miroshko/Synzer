@@ -6,6 +6,9 @@
   height: 120px;
   margin: 0 -1px;
   background: url(../img/key.png);
+  user-drag: none; 
+  -moz-user-select: none;
+  -webkit-user-drag: none;
 }
 
 .key-black {
@@ -13,4 +16,8 @@
   height: 72px;
   margin: 0 -20px 0 -20px;
   background: url(../img/key-black.png);
+}
+
+.pressed {
+  top: 4px;
 }

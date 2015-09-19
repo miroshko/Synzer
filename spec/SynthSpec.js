@@ -36,6 +36,12 @@ describe('Synth', function() {
     delete global.AudioContext;
   });
 
+  it('constructs', function() {
+    expect(synth).toEqual(jasmine.any(Object));
+    expect(gainNode.connect).toHaveBeenCalled();
+    expect(stereoPanner.connect).toHaveBeenCalled();
+  });
+
   it('starts playing', function() {
     synth.play(aNote);
     expect(oscillator.start).toHaveBeenCalledWith(0);
@@ -63,13 +69,13 @@ describe('Synth', function() {
   });
 
   it('sets volume', function() {
-    synth.setVolume(60);
+    synth.setVolume(0.6);
     synth.play(aNote);
     expect(gainNode.gain.value).toBe(0.6);
   });
 
   it('sets pan', function() {
-    synth.setPan(40);
+    synth.setPan(0.8);
     synth.play(aNote);
     expect(stereoPanner.pan.value).toBe(0.8);
   });

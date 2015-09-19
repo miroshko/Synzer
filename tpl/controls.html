@@ -1,17 +1,41 @@
 <link rel="stylesheet" href="css/controls.css">
 
-<div class="volume-pan-container">
-  <label class="volume">
-    <span>Volume</span>
-    <input class="number volume" name="volume" value="50" min="0" max="100" type="number">
+<div class="col1-container">
+  <h3>Tremolo</h3>
+  <label class="osc1-depth">
+    <span>Depth</span>
+    <input type="number" value="100" max="100" min="0">
   </label>
-  <label class="pan">
-    <span>Pan</span>
-    <input class="number volume" name="pan" value="0" min="-50" max="50" type="number">
+  <label class="osc1-length">
+    <span>Rate</span>
+    <input type="number" value="2">
   </label>
 </div>
 
-<div class="wave-form-container">
+<div class="col1-container">
+  <h3>Vibrato</h3>
+  <label class="osc1-depth">
+    <span>Depth</span>
+    <input type="number" value="100" max="100" min="0">
+  </label>
+  <label class="osc1-length">
+    <span>Rate</span>
+    <input type="number" value="2">
+  </label>
+</div>
+
+<div class="volume-pan-container col1-container">
+  <label class="volume">
+    <span>Volume</span>
+    <input class="volume" name="volume" value="0.5" min="0" max="1" step="0.1" type="number">
+  </label>
+  <label class="pan">
+    <span>Pan</span>
+    <input class="volume" name="pan" value="0" min="-1" max="1" step="0.1" type="number">
+  </label>
+</div>
+
+<div class="wave-form-container col2-container">
   <label class="wave-form sine">
     <span class="img"></span><br>
     <input type="radio" name="wave-form" value="sine" checked>

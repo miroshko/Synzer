@@ -52,11 +52,15 @@ Keyboard.prototype.startMouseListening = function() {
   var this_ = this;
 
   function pressed(el) {
+    if (!el.classList.contains('key'))
+      return;
     el.classList.add('pressed');
     this_.emit('notePressed', new Note(el.dataset.pitch));
   }
 
   function released(el) {
+    if (!el.classList.contains('key'))
+      return;
     el.classList.remove('pressed');
     this_.emit('noteReleased', new Note(el.dataset.pitch));
   }
@@ -170,10 +174,18 @@ var square = require('./waveforms/square');
 var sine = require('./waveforms/sine');
 
 function Synth() {
-  this.oscillators = {};
-  this.gainNodes = {};
-  this.stereoPanners = {};
   this.context = new global.AudioContext;
+
+  this.oscillators = {};
+
+  this.stereoPanner = this.context.createStereoPanner();
+  this.stereoPanner.pan.value = this._pan;
+  this.stereoPanner.connect(this.context.destination);
+
+  this.gain = this.context.createGain();
+  this.gain.value = this._volume;
+  this.gain.connect(this.stereoPanner);
+ 
   this._waveForm = null;
 }
 
@@ -187,6 +199,10 @@ Synth.prototype.setWaveForm = function(waveForm) {
 
 Synth.prototype.setVolume = function(volume) {
   this._volume = volume;
+  console.log("SET TO " + volume)
+  // for(var pitch in this.gainNodes) {
+  //   this.gainNodes[pitch] = this._volume;
+  // }
 };
 
 Synth.prototype.setPan = function(pan) {
@@ -194,25 +210,19 @@ Synth.prototype.setPan = function(pan) {
 };
 
 Synth.prototype.play = function(note) {
-  var oscillator = this.oscillators[note.pitch] = this.context.createOscillator();
-  var gainNode = this.gainNodes[note.pitch] = this.context.createGain();
-  var stereoPanner = this.stereoPanners[note.pitch] = this.context.createStereoPanner();
+  if (!this.oscillators[note.pitch]) {
+    this.oscillators[note.pitch] = this.context.createOscillator()
+  }
 
   oscillator.setPeriodicWave(this._waveForm || sine);
   oscillator.frequency.value = note.frequency;
-  oscillator.connect(this.gainNodes[note.pitch]);
-  
-  gainNode.gain.value = this._volume / 100;
-  gainNode.connect(stereoPanner);
-
-  stereoPanner.pan.value = this._pan / 50;
-  stereoPanner.connect(this.context.destination);
-  
+  oscillator.connect(this.gain);
   oscillator.start(0);
 };
 
 Synth.prototype.stop = function(note) {
   this.oscillators[note.pitch].stop(0);
+  delete this.oscillators[note.pitch];
 };
 
 module.exports = Synth;
@@ -298,6 +308,6 @@ module.exports = wave;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],10:[function(require,module,exports){
-module.exports = "<link rel=\"stylesheet\" href=\"css/controls.css\">\n\n<div class=\"volume-pan-container\">\n  <label class=\"volume\">\n    <span>Volume</span>\n    <input class=\"number volume\" name=\"volume\" value=\"50\" min=\"0\" max=\"100\" type=\"number\">\n  </label>\n  <label class=\"pan\">\n    <span>Pan</span>\n    <input class=\"number volume\" name=\"pan\" value=\"0\" min=\"-50\" max=\"50\" type=\"number\">\n  </label>\n</div>\n\n<div class=\"wave-form-container\">\n  <label class=\"wave-form sine\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"sine\" checked>\n  </label>\n  <label class=\"wave-form sawtooth\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"sawtooth\">\n  </label>\n  <label class=\"wave-form square\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"square\">\n  </label>\n</div>\n";
+module.exports = "<link rel=\"stylesheet\" href=\"css/controls.css\">\n\n<div class=\"col1-container\">\n  <h3>Tremolo</h3>\n  <label class=\"osc1-depth\">\n    <span>Depth</span>\n    <input type=\"number\" value=\"100\" max=\"100\" min=\"0\">\n  </label>\n  <label class=\"osc1-length\">\n    <span>Rate</span>\n    <input type=\"number\" value=\"2\">\n  </label>\n</div>\n\n<div class=\"col1-container\">\n  <h3>Vibrato</h3>\n  <label class=\"osc1-depth\">\n    <span>Depth</span>\n    <input type=\"number\" value=\"100\" max=\"100\" min=\"0\">\n  </label>\n  <label class=\"osc1-length\">\n    <span>Rate</span>\n    <input type=\"number\" value=\"2\">\n  </label>\n</div>\n\n<div class=\"volume-pan-container col1-container\">\n  <label class=\"volume\">\n    <span>Volume</span>\n    <input class=\"volume\" name=\"volume\" value=\"0.5\" min=\"0\" max=\"1\" step=\"0.1\" type=\"number\">\n  </label>\n  <label class=\"pan\">\n    <span>Pan</span>\n    <input class=\"volume\" name=\"pan\" value=\"0\" min=\"-1\" max=\"1\" step=\"0.1\" type=\"number\">\n  </label>\n</div>\n\n<div class=\"wave-form-container col2-container\">\n  <label class=\"wave-form sine\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"sine\" checked>\n  </label>\n  <label class=\"wave-form sawtooth\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"sawtooth\">\n  </label>\n  <label class=\"wave-form square\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"square\">\n  </label>\n</div>\n";
 
 },{}]},{},[6]);

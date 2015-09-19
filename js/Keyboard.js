@@ -24,11 +24,15 @@ Keyboard.prototype.startMouseListening = function() {
   var this_ = this;
 
   function pressed(el) {
+    if (!el.classList.contains('key'))
+      return;
     el.classList.add('pressed');
     this_.emit('notePressed', new Note(el.dataset.pitch));
   }
 
   function released(el) {
+    if (!el.classList.contains('key'))
+      return;
     el.classList.remove('pressed');
     this_.emit('noteReleased', new Note(el.dataset.pitch));
   }
