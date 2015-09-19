@@ -47,7 +47,10 @@ describe('Synth', function() {
   });
 
   it('uses sine if no wave form is set', function() {
-
+    synth.play(aNote);
+    expect(oscillator.setPeriodicWave).toHaveBeenCalledWith(
+      jasmine.objectContaining({periodicWave: true, sine: true})
+    );
   });
 
 
