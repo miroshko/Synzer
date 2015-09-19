@@ -6,16 +6,23 @@ var Synth = proxyquire('../js/Synth', {
 });
 
 describe('Synth', function() {
-  var synth, oscillator, audioContext, aNote = {pitch: 81, frequency: 440};
+  var synth, gainNode, oscillator, audioContext, aNote = {pitch: 81, frequency: 440};
 
   beforeEach(function() {
     oscillator = jasmine.createSpyObj('oscillator', ['setPeriodicWave', 'connect', 'start', 'stop']);
     oscillator.frequency = {};
+    gainNode = jasmine.createSpyObj('gainNode', ['connect']);
+    gainNode.gain = {};
 
-    audioContext = {};
-    audioContext.createOscillator = function() {};
-    audioContext.createPeriodicWave = function() {};
+
+    audioContext = {
+      createOscillator: function() {},
+      createPeriodicWave: function() {},
+      createGain: function() {}
+    };
+
     spyOn(audioContext, 'createOscillator').and.returnValue(oscillator);
+    spyOn(audioContext, 'createGain').and.returnValue(gainNode);
     spyOn(audioContext, 'createPeriodicWave').and.returnValue({periodicWave: true});
 
     global.AudioContext = function() { return audioContext; };
@@ -53,9 +60,10 @@ describe('Synth', function() {
     );
   });
 
-
   it('sets volume', function() {
-
+    synth.setVolume(60);
+    synth.play(aNote);
+    expect(gainNode.gain.value).toBe(0.6);
   });
 
   it('sets pan', function() {

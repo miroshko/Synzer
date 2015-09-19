@@ -4,6 +4,7 @@ var sine = require('./waveforms/sine');
 
 function Synth() {
   this.oscillators = {};
+  this.gainNodes = {};
   this.context = new global.AudioContext;
   this._waveForm = null;
 }
@@ -16,12 +17,19 @@ Synth.prototype.setWaveForm = function(waveForm) {
   }[waveForm];
 };
 
+Synth.prototype.setVolume = function(volume) {
+  this._volume = volume;
+};
+
 Synth.prototype.play = function(note) {
-  oscillator = this.oscillators[note.pitch] = this.context.createOscillator();
+  var oscillator = this.oscillators[note.pitch] = this.context.createOscillator();
+  var gainNode = this.gainNodes[note.pitch] = this.context.createGain();
 
   oscillator.setPeriodicWave(this._waveForm || sine);
   oscillator.frequency.value = note.frequency;
-  oscillator.connect(this.context.destination);
+  oscillator.connect(this.gainNodes[note.pitch]);
+  gainNode.gain.value = this._volume / 100;
+  gainNode.connect(this.context.destination);
   oscillator.start(0);
 };
 

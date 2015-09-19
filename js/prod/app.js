@@ -124,13 +124,15 @@ Note.prototype._freq = function(pitch) {
 
 module.exports = Note;
 },{}],5:[function(require,module,exports){
+(function (global){
 var sawtooth = require('./waveforms/sawtooth');
 var square = require('./waveforms/square');
 var sine = require('./waveforms/sine');
 
 function Synth() {
   this.oscillators = {};
-  this.context = new AudioContext;
+  this.gainNodes = {};
+  this.context = new global.AudioContext;
   this._waveForm = null;
 }
 
@@ -142,11 +144,19 @@ Synth.prototype.setWaveForm = function(waveForm) {
   }[waveForm];
 };
 
+Synth.prototype.setVolume = function(volume) {
+  this._volume = volume;
+};
+
 Synth.prototype.play = function(note) {
-  oscillator = this.oscillators[note.pitch] = this.context.createOscillator();
+  var oscillator = this.oscillators[note.pitch] = this.context.createOscillator();
+  var gainNode = this.gainNodes[note.pitch] = this.context.createGain();
+
   oscillator.setPeriodicWave(this._waveForm || sine);
   oscillator.frequency.value = note.frequency;
-  oscillator.connect(this.context.destination);
+  oscillator.connect(this.gainNodes[note.pitch]);
+  gainNode.gain.value = this._volume / 100;
+  gainNode.connect(this.context.destination);
   oscillator.start(0);
 };
 
@@ -155,6 +165,7 @@ Synth.prototype.stop = function(note) {
 };
 
 module.exports = Synth;
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./waveforms/sawtooth":7,"./waveforms/sine":8,"./waveforms/square":9}],6:[function(require,module,exports){
 var Keyboard = require('./Keyboard');
 var Controls = require('./Controls');
@@ -193,10 +204,11 @@ keyboard.on('noteReleased', function(note) {
 });
 
 },{"./Controls":1,"./Keyboard":2,"./Synth":5}],7:[function(require,module,exports){
-var context = new AudioContext();
+(function (global){
+var context = new global.AudioContext();
 var approaches = 128;
-var real = new Float32Array(approaches);
-var imag = new Float32Array(approaches);
+var real = new global.Float32Array(approaches);
+var imag = new global.Float32Array(approaches);
 
 real[0] = 0.5;
 for (var i = 1; i < approaches; i++) {
@@ -207,18 +219,22 @@ var wave = context.createPeriodicWave(real, imag);
 
 module.exports = wave;
 
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],8:[function(require,module,exports){
-var context = new AudioContext();
-var realCoeffs = new Float32Array([0,0]);
-var imagCoeffs = new Float32Array([0,1]);
+(function (global){
+var context = new global.AudioContext();
+var realCoeffs = new global.Float32Array([0,0]);
+var imagCoeffs = new global.Float32Array([0,1]);
 var wave = context.createPeriodicWave(realCoeffs, imagCoeffs);
 
 module.exports = wave;
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],9:[function(require,module,exports){
-var context = new AudioContext();
+(function (global){
+var context = new global.AudioContext();
 var approaches = 128;
-var real = new Float32Array(approaches);
-var imag = new Float32Array(approaches);
+var real = new global.Float32Array(approaches);
+var imag = new global.Float32Array(approaches);
 
 real[0] = 0;
 for (var i = 1; i < approaches; i++) {
@@ -229,6 +245,7 @@ var wave = context.createPeriodicWave(real, imag);
 
 module.exports = wave;
 
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],10:[function(require,module,exports){
 module.exports = "<link rel=\"stylesheet\" href=\"css/controls.css\">\n\n<div class=\"volume-pan-container\">\n  <label class=\"volume\">\n    <span>Volume</span>\n    <input class=\"number volume\" name=\"volume\" value=\"50\" min=\"0\" max=\"100\" type=\"number\">\n  </label>\n  <label class=\"pan\">\n    <span>Pan</span>\n    <input class=\"number volume\" name=\"pan\" value=\"0\" min=\"-50\" max=\"50\" type=\"number\">\n  </label>\n</div>\n\n<div class=\"wave-form-container\">\n  <label class=\"wave-form sine\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"sine\" checked>\n  </label>\n  <label class=\"wave-form sawtooth\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"sawtooth\">\n  </label>\n  <label class=\"wave-form square\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"square\">\n  </label>\n</div>\n";
 
