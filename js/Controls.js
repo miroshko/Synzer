@@ -14,7 +14,6 @@ Controls.prototype.activate = function() {
     this_.emit(e.target.name + '-change', e.target.value);
   });
 
-  console.log(100100);
   // senging out initial values
   Array.prototype.forEach.call(this.el.querySelectorAll('[name]'), function(el) {
     if (el.type == 'radio' && el.checked === false) {

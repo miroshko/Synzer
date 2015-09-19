@@ -15,7 +15,6 @@ Controls.prototype.activate = function() {
     this_.emit(e.target.name + '-change', e.target.value);
   });
 
-  console.log(100100);
   // senging out initial values
   Array.prototype.forEach.call(this.el.querySelectorAll('[name]'), function(el) {
     if (el.type == 'radio' && el.checked === false) {
@@ -32,6 +31,7 @@ var MediatorMixin = require('./MediatorMixin');
 
 function Keyboard(el) {
   this.el = el;
+  this._keysPressed = {};
   MediatorMixin.call(this);
 }
 
@@ -51,11 +51,31 @@ Keyboard.prototype.draw = function(lowestNote, highestNote) {
 Keyboard.prototype.startMouseListening = function() {
   var this_ = this;
   this.el.addEventListener('mousedown', function(e) {
+    this_._mouseDown = true;
     this_.emit('notePressed', new Note(e.target.dataset.pitch));
   });
 
+  this.el.addEventListener('mouseover', function(e) {
+    if (this_._mouseDown) {
+      this_.emit('notePressed', new Note(e.target.dataset.pitch));
+    }
+  });
+
+  this.el.addEventListener('mouseleave', function(e) {
+    this_._mouseDown = false;
+  });
+
+  this.el.addEventListener('mouseout', function(e) {
+    if (this_._mouseDown) {
+      this_.emit('noteReleased', new Note(e.target.dataset.pitch));
+    }
+  });
+
   this.el.addEventListener('mouseup', function(e) {
-    this_.emit('noteReleased', new Note(e.target.dataset.pitch));
+    if (this_._mouseDown) {
+      this_.emit('noteReleased', new Note(e.target.dataset.pitch));
+    }
+    this_._mouseDown = false;
   });
 };
 
