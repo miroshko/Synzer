@@ -51,7 +51,7 @@ Synth.prototype.stop = function(note) {
 
 Synth.prototype.connect = function(output) {
   this._output = output;
-  for (var pitch in this.oscillators) {
+  for (var pitch in this._oscillators) {
     this._oscillators[pitch].connect(this._output);
   }
 };

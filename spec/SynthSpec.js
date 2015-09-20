@@ -20,7 +20,8 @@ describe('Synth', function() {
       createOscillator: function() {},
       createPeriodicWave: function() {},
       createStereoPanner: function() {},
-      createGain: function() {}
+      createGain: function() {},
+      destination: {}
     };
 
     spyOn(audioContext, 'createOscillator').and.returnValue(oscillator);
@@ -83,6 +84,7 @@ describe('Synth', function() {
   it('connects all oscillators when connect is called', function() {
     synth.play(aNote);
     synth.play(aNote2);
+    oscillator.connect.calls.reset();
     synth.connect(audioContext.destination);
     expect(oscillator.connect).toHaveBeenCalledWith(audioContext.destination);
     expect(oscillator.connect.calls.count()).toBe(2);
