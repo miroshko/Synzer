@@ -31,14 +31,14 @@ SineModulator.prototype.start = function() {
   this._startedAt = Date.now();
   var this_ = this;
   this._interval = setInterval(function() {
-    var ratio = this_._modRatioNow();
-    this_._objToModulate[this_._propertyToModulate] = initialValue * ratio;
+    var diff = this_._modRatioNow();
+    this_._objToModulate[this_._propertyToModulate] = initialValue + diff;
   }, 25);
 };
 
 SineModulator.prototype._modRatioNow = function(time) {
   // 1 dB = 125,89%
-  return 1 + Math.sin(this._nowToX() - this._xOffset) * this.depth;
+  return Math.sin(this._nowToX() - this._xOffset) * this.depth;
 };
 
 SineModulator.prototype.stop = function() {

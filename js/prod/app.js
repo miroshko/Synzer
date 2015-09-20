@@ -207,7 +207,8 @@ SineModulator.prototype.start = function() {
 };
 
 SineModulator.prototype._modRatioNow = function(time) {
-  return Math.pow(1 + this.depth, Math.sin(this._nowToX() - this._xOffset));
+  // 1 dB = 125,89%
+  return 1 + Math.sin(this._nowToX() - this._xOffset) * this.depth;
 };
 
 SineModulator.prototype.stop = function() {
@@ -318,12 +319,17 @@ controls.on('tremolo-on-change', function(value) {
 });
 
 controls.on('tremolo-depth-change', function(value) {
+  // 1 dB = 125,89%
   tremolo.depth = Math.pow(1.2589, value);
 });
 
 controls.on('tremolo-freq-change', function(value) {
   tremolo.frequency = value;
 });
+
+setInterval(function() {
+  console.log( synth.pitchShift );
+}, 250);
 
 controls.on('vibrato-on-change', function(value) {
   console.log("vibrato-on ", value)

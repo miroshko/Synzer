@@ -46,6 +46,10 @@ controls.on('tremolo-freq-change', function(value) {
   tremolo.frequency = value;
 });
 
+setInterval(function() {
+  console.log( synth.pitchShift );
+}, 250);
+
 controls.on('vibrato-on-change', function(value) {
   console.log("vibrato-on ", value)
   parseInt(value) ? vibrato.start() : vibrato.stop();

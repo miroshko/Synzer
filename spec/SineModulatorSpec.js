@@ -29,31 +29,31 @@ describe('Sine Modulator', function() {
 
   it('starts modulating', function() {
     jasmine.clock().tick(250);
-    expect(modulatedObj.param1).toBeCloseTo(prevVal * 1.5);
+    expect(modulatedObj.param1).toBeCloseTo(prevVal + 0.5);
     jasmine.clock().tick(250);
     expect(modulatedObj.param1).toBeCloseTo(prevVal);
     jasmine.clock().tick(250);
-    expect(modulatedObj.param1).toBeCloseTo(prevVal * 0.5);
+    expect(modulatedObj.param1).toBeCloseTo(prevVal - 0.5);
     jasmine.clock().tick(250);
     expect(modulatedObj.param1).toBeCloseTo(prevVal);
   });
 
   it('depth can be changed in runtime', function() {
     jasmine.clock().tick(250);
-    expect(modulatedObj.param1).toBeCloseTo(prevVal * 1.5);
+    expect(modulatedObj.param1).toBeCloseTo(prevVal + 0.5);
     jasmine.clock().tick(250);
     sineModulator.depth = 0.8;
     jasmine.clock().tick(250);
-    expect(modulatedObj.param1).toBeCloseTo(prevVal * 0.2);
+    expect(modulatedObj.param1).toBeCloseTo(prevVal - 0.8);
   });
 
   it('frequency can be changed in runtime', function() {
     jasmine.clock().tick(250);
-    expect(modulatedObj.param1).toBeCloseTo(prevVal * 1.5);
+    expect(modulatedObj.param1).toBeCloseTo(prevVal + 0.5);
     jasmine.clock().tick(250);
     sineModulator.frequency = 2;
     jasmine.clock().tick(125);
-    expect(modulatedObj.param1).toBeCloseTo(prevVal * 0.5);
+    expect(modulatedObj.param1).toBeCloseTo(prevVal - 0.5);
     jasmine.clock().tick(125);
     expect(modulatedObj.param1).toBeCloseTo(prevVal);
   });
