@@ -12,11 +12,6 @@ synth.connect(volume);
 volume.connect(pan);
 pan.connect(audioCtx.destination);
 
-setTimeout(function() {
-  console.log("CHANGING VOLUME TO 0.1")
-  volume.gain.value = 0.1;
-}, 2000)
-
 var tremolo = new SineModulator();
 tremolo.modulate(volume.gain, 'value');
 
@@ -27,6 +22,7 @@ controls.on('wave-form-change', function(type) {
 });
 
 controls.on('volume-change', function(value) {
+  console.log("VOLUME IS NOW " + value)
   volume.gain.value = value;
 });
 
@@ -36,7 +32,7 @@ controls.on('pan-change', function(value) {
 
 controls.on('tremolo-on-change', function(value) {
   console.log("called tremolo-on- " + value)
-  value ? tremolo.start() : tremolo.stop();
+  parseInt(value) ? tremolo.start() : tremolo.stop();
 });
 
 controls.on('tremolo-depth-change', function(value) {
@@ -44,7 +40,7 @@ controls.on('tremolo-depth-change', function(value) {
   tremolo.depth = value;
 });
 
-controls.on('tremolo-frequency-change', function(value) {
+controls.on('tremolo-freq-change', function(value) {
   console.log("called tremolo-frequency- " + value)
   tremolo.frequency = value;
 });

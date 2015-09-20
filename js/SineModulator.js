@@ -3,6 +3,7 @@ function SineModulator (options) {
   this._frequency = options.frequency || 0;
   this._xOffset = 0;
   this._startedAt = 0;
+  this._interval = null;
   this.depth = options.depth || 0;
 
   Object.defineProperty(this, "frequency", { 
@@ -27,6 +28,7 @@ SineModulator.prototype.modulate = function(object, property) {
 
 SineModulator.prototype.start = function() {
   var initialValue = this._objToModulate[this._propertyToModulate];
+  console.log(initialValue )
   this._startedAt = Date.now();
   var this_ = this;
   this._interval = setInterval(function() {

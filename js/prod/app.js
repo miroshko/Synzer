@@ -173,6 +173,7 @@ function SineModulator (options) {
   this._frequency = options.frequency || 0;
   this._xOffset = 0;
   this._startedAt = 0;
+  this._interval = null;
   this.depth = options.depth || 0;
 
   Object.defineProperty(this, "frequency", { 
@@ -197,6 +198,7 @@ SineModulator.prototype.modulate = function(object, property) {
 
 SineModulator.prototype.start = function() {
   var initialValue = this._objToModulate[this._propertyToModulate];
+  console.log(initialValue )
   this._startedAt = Date.now();
   var this_ = this;
   this._interval = setInterval(function() {
@@ -272,7 +274,7 @@ Synth.prototype.stop = function(note) {
 
 Synth.prototype.connect = function(output) {
   this._output = output;
-  for (var pitch in this.oscillators) {
+  for (var pitch in this._oscillators) {
     this._oscillators[pitch].connect(this._output);
   }
 };
@@ -294,10 +296,6 @@ synth.connect(volume);
 volume.connect(pan);
 pan.connect(audioCtx.destination);
 
-setTimeout(function() {
-  volume.gain.value = 0.1;
-}, 2000)
-
 var tremolo = new SineModulator();
 tremolo.modulate(volume.gain, 'value');
 
@@ -308,6 +306,7 @@ controls.on('wave-form-change', function(type) {
 });
 
 controls.on('volume-change', function(value) {
+  console.log("VOLUME IS NOW " + value)
   volume.gain.value = value;
 });
 
@@ -317,7 +316,7 @@ controls.on('pan-change', function(value) {
 
 controls.on('tremolo-on-change', function(value) {
   console.log("called tremolo-on- " + value)
-  value ? tremolo.start() : tremolo.stop();
+  parseInt(value) ? tremolo.start() : tremolo.stop();
 });
 
 controls.on('tremolo-depth-change', function(value) {
@@ -325,7 +324,7 @@ controls.on('tremolo-depth-change', function(value) {
   tremolo.depth = value;
 });
 
-controls.on('tremolo-frequency-change', function(value) {
+controls.on('tremolo-freq-change', function(value) {
   console.log("called tremolo-frequency- " + value)
   tremolo.frequency = value;
 });
