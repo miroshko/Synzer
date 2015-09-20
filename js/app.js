@@ -15,6 +15,9 @@ pan.connect(audioCtx.destination);
 var tremolo = new SineModulator();
 tremolo.modulate(volume.gain, 'value');
 
+var vibrato = new SineModulator();
+vibrato.modulate(synth, 'pitchShift');
+
 var controls = new Controls(document.querySelector('.controls'));
 
 controls.on('wave-form-change', function(type) {
@@ -31,19 +34,32 @@ controls.on('pan-change', function(value) {
 });
 
 controls.on('tremolo-on-change', function(value) {
-  console.log("called tremolo-on- " + value)
   parseInt(value) ? tremolo.start() : tremolo.stop();
 });
 
 controls.on('tremolo-depth-change', function(value) {
-  console.log("called tremolo-depth- " + value)
   tremolo.depth = value;
 });
 
 controls.on('tremolo-freq-change', function(value) {
-  console.log("called tremolo-frequency- " + value)
   tremolo.frequency = value;
 });
+
+controls.on('vibrato-on-change', function(value) {
+  console.log("vibrato-on ", value)
+  parseInt(value) ? vibrato.start() : vibrato.stop();
+});
+
+controls.on('vibrato-depth-change', function(value) {
+  console.log("vibrato-depth ", value)
+  vibrato.depth = value;
+});
+
+controls.on('vibrato-freq-change', function(value) {
+  console.log("vibrato-freq ", value)
+  vibrato.frequency = value;
+});
+
 
 controls.activate();
 
