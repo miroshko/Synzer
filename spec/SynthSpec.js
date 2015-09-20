@@ -27,9 +27,7 @@ describe('Synth', function() {
     spyOn(audioContext, 'createGain').and.returnValue(gainNode);
     spyOn(audioContext, 'createStereoPanner').and.returnValue(stereoPanner);
 
-    global.AudioContext = function() { return audioContext; };
-
-    synth = new Synth;
+    synth = new Synth(audioContext);
   });
 
   afterEach(function() {
@@ -38,14 +36,12 @@ describe('Synth', function() {
 
   it('constructs', function() {
     expect(synth).toEqual(jasmine.any(Object));
-    expect(gainNode.connect).toHaveBeenCalled();
-    expect(stereoPanner.connect).toHaveBeenCalled();
   });
 
   it('starts playing', function() {
     synth.play(aNote);
     expect(oscillator.start).toHaveBeenCalledWith(0);
-    expect(oscillator.frequency.value).toEqual(aNote.frequency);
+    expect(oscillator.frequency.value).toEqual(aNote.frequency)
   });
 
   it('stops playing', function() {
@@ -69,15 +65,18 @@ describe('Synth', function() {
     );
   });
 
-  it('sets volume', function() {
-    synth.setVolume(0.6);
+  it('sets pitchshift', function() {
+    synth.pitchShift = 1;
     synth.play(aNote);
-    expect(gainNode.gain.value).toBe(0.6);
-  });
+    expect(oscillator.frequency.value).toBeCloseTo(440 * (Math.pow(2, 1/1200)));
 
-  it('sets pan', function() {
-    synth.setPan(0.8);
-    synth.play(aNote);
-    expect(stereoPanner.pan.value).toBe(0.8);
+    synth.pitchShift = 10;
+    expect(oscillator.frequency.value).toBeCloseTo(440 * (Math.pow(2, 10/1200)));
+
+    synth.pitchShift = 1200;
+    expect(oscillator.frequency.value).toBeCloseTo(880);
+
+    synth.pitchShift = -1200;
+    expect(oscillator.frequency.value).toBeCloseTo(220);
   });
 });

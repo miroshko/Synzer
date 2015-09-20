@@ -6,11 +6,22 @@ function Synth(context) {
   this._oscillators = {};
   this._waveForm = null;
   this._context = context;
-}
+  this._pitchShift = 0;
+  this._notes = {};
 
-// defaults
-Synth.prototype._pan = 0;
-Synth.prototype._volume = 0.5;
+  Object.defineProperty(this, "pitchShift", { 
+    set: function (ps) {
+      this._pitchShift = ps;
+      for(var pitch in this._oscillators) {
+        this._oscillators[pitch].frequency.value =
+          this._oscillators[pitch].baseFrequency * Math.pow(2, this._pitchShift/1200);
+      }
+    },
+    get: function() {
+      return this._pitchShift;
+    }
+  });
+}
 
 Synth.prototype.setWaveForm = function(waveForm) {
   this._waveForm = {
@@ -27,7 +38,8 @@ Synth.prototype.play = function(note) {
   }
 
   oscillator.setPeriodicWave(this._waveForm || sine);
-  oscillator.frequency.value = note.frequency;
+  oscillator.baseFrequency = note.frequency;
+  oscillator.frequency.value = note.frequency * Math.pow(2, this._pitchShift/1200);
   oscillator.connect(this._output);
   oscillator.start(0);
 };

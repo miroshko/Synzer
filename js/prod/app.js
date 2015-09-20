@@ -227,10 +227,12 @@ var controlsEl = document.querySelector('.controls');
 var audioCtx = new global.AudioContext();
 var synth = new Synth(audioCtx);
 var volume = audioCtx.createGain();
+var pan = audioCtx.createStereoPanner();
 
 
 synth.connect(volume);
-volume.connect(audioCtx.destination);
+volume.connect(pan);
+pan.connect(audioCtx.destination);
 
 var controls = new Controls(controlsEl);
 
@@ -243,7 +245,7 @@ controls.on('volume-change', function(value) {
 });
 
 controls.on('pan-change', function(value) {
-  // pan.pan.value = value;
+  pan.pan.value = value;
 });
 
 controls.activate();

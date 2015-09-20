@@ -8,8 +8,7 @@ var controlsEl = document.querySelector('.controls');
 var audioCtx = new global.AudioContext();
 var synth = new Synth(audioCtx);
 var volume = audioCtx.createGain();
-var pan = audioCtx.createSteeroPanner();
-
+var pan = audioCtx.createStereoPanner();
 
 synth.connect(volume);
 volume.connect(pan);
