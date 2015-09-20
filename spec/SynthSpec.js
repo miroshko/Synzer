@@ -6,7 +6,7 @@ var Synth = proxyquire('../js/Synth', {
 });
 
 describe('Synth', function() {
-  var synth, gainNode, oscillator, audioContext, aNote = {pitch: 81, frequency: 440};
+  var synth, gainNode, oscillator, audioContext, aNote = {pitch: 81, frequency: 440}, aNote2 = {pitch: 93, frequency: 880};
 
   beforeEach(function() {
     oscillator = jasmine.createSpyObj('oscillator', ['setPeriodicWave', 'connect', 'start', 'stop']);
@@ -78,5 +78,19 @@ describe('Synth', function() {
 
     synth.pitchShift = -1200;
     expect(oscillator.frequency.value).toBeCloseTo(220);
+  });
+
+  it('connects all oscillators when connect is called', function() {
+    synth.play(aNote);
+    synth.play(aNote2);
+    synth.connect(audioContext.destination);
+    expect(oscillator.connect).toHaveBeenCalledWith(audioContext.destination);
+    expect(oscillator.connect.calls.count()).toBe(2);
+  });
+
+  it('connects newly created oscillators to the destination', function() {
+    synth.connect(audioContext.destination);
+    synth.play(aNote);
+    expect(oscillator.connect).toHaveBeenCalledWith(audioContext.destination);
   });
 });

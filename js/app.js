@@ -1,9 +1,7 @@
 var Keyboard = require('./Keyboard');
 var Controls = require('./Controls');
 var Synth = require('./Synth');
-
-var keyboardEl = document.querySelector('.keyboard');
-var controlsEl = document.querySelector('.controls');
+var SineModulator = require('./SineModulator');
 
 var audioCtx = new global.AudioContext();
 var synth = new Synth(audioCtx);
@@ -14,7 +12,13 @@ synth.connect(volume);
 volume.connect(pan);
 pan.connect(audioCtx.destination);
 
-var controls = new Controls(controlsEl);
+var tremolo = new SineModulator({
+  depth: 1,
+  frequency: 1
+});
+tremolo.modulate(volume.gain, 'value');
+
+var controls = new Controls(document.querySelector('.controls'));
 
 controls.on('wave-form-change', function(type) {
   synth.setWaveForm(type);
@@ -28,9 +32,13 @@ controls.on('pan-change', function(value) {
   pan.pan.value = value;
 });
 
+controls.on('tremolo-on', function(value) {
+  value ? tremolo.start() : tremolo.stop();
+});
+
 controls.activate();
 
-var keyboard = new Keyboard(keyboardEl);
+var keyboard = new Keyboard(document.querySelector('.keyboard'));
 keyboard.draw(60, 84);
 keyboard.startMouseListening();
 
