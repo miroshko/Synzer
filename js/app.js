@@ -38,7 +38,8 @@ controls.on('tremolo-on-change', function(value) {
 });
 
 controls.on('tremolo-depth-change', function(value) {
-  tremolo.depth = value;
+  // 1 dB = 125,89%
+  tremolo.depth = Math.pow(1.2589, value);
 });
 
 controls.on('tremolo-freq-change', function(value) {

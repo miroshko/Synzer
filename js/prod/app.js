@@ -198,7 +198,6 @@ SineModulator.prototype.modulate = function(object, property) {
 
 SineModulator.prototype.start = function() {
   var initialValue = this._objToModulate[this._propertyToModulate];
-  console.log(initialValue )
   this._startedAt = Date.now();
   var this_ = this;
   this._interval = setInterval(function() {
@@ -208,10 +207,7 @@ SineModulator.prototype.start = function() {
 };
 
 SineModulator.prototype._modRatioNow = function(time) {
-  // 1 dB = 125,89%
-  var db = Math.sin(this._nowToX() - this._xOffset) * this.depth;
-  var ratio = Math.pow(1.2589, db);
-  return ratio;
+  return Math.pow(1 + this.depth, Math.sin(this._nowToX() - this._xOffset));
 };
 
 SineModulator.prototype.stop = function() {
@@ -322,7 +318,7 @@ controls.on('tremolo-on-change', function(value) {
 });
 
 controls.on('tremolo-depth-change', function(value) {
-  tremolo.depth = value;
+  tremolo.depth = Math.pow(1.2589, value);
 });
 
 controls.on('tremolo-freq-change', function(value) {

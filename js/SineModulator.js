@@ -38,7 +38,7 @@ SineModulator.prototype.start = function() {
 
 SineModulator.prototype._modRatioNow = function(time) {
   // 1 dB = 125,89%
-  return Math.pow(1 + this.depth, Math.sin(this._nowToX() - this._xOffset));
+  return 1 + Math.sin(this._nowToX() - this._xOffset) * this.depth;
 };
 
 SineModulator.prototype.stop = function() {
