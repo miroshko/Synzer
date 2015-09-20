@@ -48,12 +48,11 @@ function Delay(audioCtx) {
     }
   });
 
-  this.input.connect(this._delayLinesInput);
   this.input.connect(this._output);
 }
 
 Delay.prototype._pushTap = function() {
-  var delay = this._audioCtx.createDelay();
+  var delay = this._audioCtx.createDelay(10.0);
   delay.delayTime.value = this._latency / 1000 * (1 + this._delayLines.length);
   this._delayLines.push(delay);
   
