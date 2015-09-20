@@ -174,6 +174,7 @@ function SineModulator (options) {
   this._xOffset = 0;
   this._startedAt = 0;
   this._interval = null;
+  this._prevValue = 0;
   this.depth = options.depth || 0;
 
   Object.defineProperty(this, "frequency", { 
@@ -197,18 +198,19 @@ SineModulator.prototype.modulate = function(object, property) {
 };
 
 SineModulator.prototype.start = function() {
-  var initialValue = this._objToModulate[this._propertyToModulate];
   this._startedAt = Date.now();
   var this_ = this;
   this._interval = setInterval(function() {
-    var ratio = this_._modRatioNow();
-    this_._objToModulate[this_._propertyToModulate] = initialValue * ratio;
+    var value = this_._modValueNow();
+    var diff = value - this._prevValue;
+    this_._objToModulate[this_._propertyToModulate] += diff;
+    this._prevValue = value;
   }, 25);
 };
 
-SineModulator.prototype._modRatioNow = function(time) {
+SineModulator.prototype._modValueNow = function(time) {
   // 1 dB = 125,89%
-  return 1 + Math.sin(this._nowToX() - this._xOffset) * this.depth;
+  return Math.sin(this._nowToX() - this._xOffset) * this.depth;
 };
 
 SineModulator.prototype.stop = function() {
@@ -235,6 +237,8 @@ function Synth(context) {
       for(var pitch in this._oscillators) {
         this._oscillators[pitch].frequency.value =
           this._oscillators[pitch].baseFrequency * Math.pow(2, this._pitchShift/1200);
+
+        console.log( "FREQ IS " + this._oscillators[pitch].frequency.value )
       }
     },
     get: function() {
@@ -306,7 +310,6 @@ controls.on('wave-form-change', function(type) {
 });
 
 controls.on('volume-change', function(value) {
-  console.log("VOLUME IS NOW " + value)
   volume.gain.value = value;
 });
 
@@ -327,22 +330,15 @@ controls.on('tremolo-freq-change', function(value) {
   tremolo.frequency = value;
 });
 
-setInterval(function() {
-  console.log( synth.pitchShift );
-}, 250);
-
 controls.on('vibrato-on-change', function(value) {
-  console.log("vibrato-on ", value)
   parseInt(value) ? vibrato.start() : vibrato.stop();
 });
 
 controls.on('vibrato-depth-change', function(value) {
-  console.log("vibrato-depth ", value)
   vibrato.depth = value;
 });
 
 controls.on('vibrato-freq-change', function(value) {
-  console.log("vibrato-freq ", value)
   vibrato.frequency = value;
 });
 
@@ -406,6 +402,6 @@ module.exports = wave;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],11:[function(require,module,exports){
-module.exports = "<link rel=\"stylesheet\" href=\"css/controls.css\">\n\n<div class=\"col1-container\">\n  <h3>Tremolo</h3>\n  <label>\n    <input type=\"radio\" name=\"tremolo-on\" value=\"1\"><span>ON</span>\n  </label>\n  <label>\n    <input type=\"radio\" type=\"radio\" name=\"tremolo-on\" value=\"0\" checked=\"true\"><span>OFF</span>\n  </label>\n  <label class=\"osc1-depth\">\n    <span>Depth</span>\n    <input type=\"number\" name=\"tremolo-depth\" value=\"3\" max=\"1000\" min=\"0\">\n  </label>\n  <label class=\"osc1-length\">\n    <span>Freq</span>\n    <input type=\"number\" name=\"tremolo-freq\" value=\"2\">\n  </label>\n</div>\n\n<div class=\"col1-container\">\n  <h3>Vibrato</h3>\n  <label>\n    <input type=\"radio\" name=\"vibrato-on\" value=\"1\"><span>ON</span>\n  </label>\n  <label>\n    <input type=\"radio\" type=\"radio\" name=\"vibrato-on\" value=\"0\" checked=\"true\"><span>OFF</span>\n  </label>\n  <label class=\"osc1-depth\">\n    <span>Depth</span>\n    <input type=\"number\" name=\"vibrato-depth\" value=\"5\" max=\"20\" min=\"0\">\n  </label>\n  <label class=\"osc1-length\">\n    <span>Cent</span>\n    <input type=\"number\" name=\"vibrato-freq\" min=\"\" max=\"200\" value=\"5\">\n  </label>\n</div>\n\n<div class=\"col1-container\">\n  <h3>Delay</h3>\n  <label>\n    <input type=\"radio\" name=\"delay-on\" value=\"1\"><span>ON</span>\n  </label>\n  <label>\n    <input type=\"radio\" type=\"radio\" name=\"delay-on\" value=\"0\" checked=\"true\"><span>OFF</span>\n  </label>\n  <label class=\"delay-taps\">\n    <span>Taps</span>\n    <input type=\"number\" name=\"delay-taps\" value=\"2\" max=\"10\" min=\"0\">\n  </label>\n  <label class=\"delay-feedback\">\n    <span>Feedback</span>\n    <input type=\"number\" name=\"delay-feedback\" value=\"50\" max=\"100\" min=\"0\">\n  </label>\n  <label class=\"delay-freq\">\n    <span>Freq</span>\n    <input type=\"number\" name=\"delay-freq\" value=\"2\">\n  </label>\n</div>\n\n<div class=\"volume-pan-container col1-container\">\n  <label class=\"volume\">\n    <span>Volume</span>\n    <input class=\"volume\" name=\"volume\" value=\"0.5\" min=\"0\" max=\"1\" step=\"0.1\" type=\"number\">\n  </label>\n  <label class=\"pan\">\n    <span>Pan</span>\n    <input class=\"volume\" name=\"pan\" value=\"0\" min=\"-1\" max=\"1\" step=\"0.1\" type=\"number\">\n  </label>\n</div>\n\n<div class=\"wave-form-container col2-container\">\n  <label class=\"wave-form sine\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"sine\" checked>\n  </label>\n  <label class=\"wave-form sawtooth\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"sawtooth\">\n  </label>\n  <label class=\"wave-form square\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"square\">\n  </label>\n</div>\n";
+module.exports = "<link rel=\"stylesheet\" href=\"css/controls.css\">\n\n<div class=\"col1-container\">\n  <h3>Tremolo</h3>\n  <label>\n    <input type=\"radio\" name=\"tremolo-on\" value=\"1\"><span>ON</span>\n  </label>\n  <label>\n    <input type=\"radio\" type=\"radio\" name=\"tremolo-on\" value=\"0\" checked=\"true\"><span>OFF</span>\n  </label>\n  <label class=\"osc1-depth\">\n    <span>Depth</span>\n    <input type=\"number\" name=\"tremolo-depth\" value=\"3\" max=\"1000\" min=\"0\">\n  </label>\n  <label class=\"osc1-length\">\n    <span>Freq</span>\n    <input type=\"number\" name=\"tremolo-freq\" value=\"2\">\n  </label>\n</div>\n\n<div class=\"col1-container\">\n  <h3>Vibrato</h3>\n  <label>\n    <input type=\"radio\" name=\"vibrato-on\" value=\"1\"><span>ON</span>\n  </label>\n  <label>\n    <input type=\"radio\" type=\"radio\" name=\"vibrato-on\" value=\"0\" checked=\"true\"><span>OFF</span>\n  </label>\n  <label class=\"osc1-length\">\n    <span>Cent</span>\n    <input type=\"number\" name=\"vibrato-depth\" min=\"\" max=\"200\" value=\"50\">\n  </label>\n  <label class=\"osc1-depth\">\n    <span>Freq</span>\n    <input type=\"number\" name=\"vibrato-freq\" value=\"5\" max=\"20\" min=\"0\">\n  </label>\n</div>\n\n<div class=\"col1-container\">\n  <h3>Delay</h3>\n  <label>\n    <input type=\"radio\" name=\"delay-on\" value=\"1\"><span>ON</span>\n  </label>\n  <label>\n    <input type=\"radio\" type=\"radio\" name=\"delay-on\" value=\"0\" checked=\"true\"><span>OFF</span>\n  </label>\n  <label class=\"delay-taps\">\n    <span>Taps</span>\n    <input type=\"number\" name=\"delay-taps\" value=\"2\" max=\"10\" min=\"0\">\n  </label>\n  <label class=\"delay-feedback\">\n    <span>Feedback</span>\n    <input type=\"number\" name=\"delay-feedback\" value=\"50\" max=\"100\" min=\"0\">\n  </label>\n  <label class=\"delay-freq\">\n    <span>Freq</span>\n    <input type=\"number\" name=\"delay-freq\" value=\"2\">\n  </label>\n</div>\n\n<div class=\"volume-pan-container col1-container\">\n  <label class=\"volume\">\n    <span>Volume</span>\n    <input class=\"volume\" name=\"volume\" value=\"0.5\" min=\"0\" max=\"1\" step=\"0.1\" type=\"number\">\n  </label>\n  <label class=\"pan\">\n    <span>Pan</span>\n    <input class=\"volume\" name=\"pan\" value=\"0\" min=\"-1\" max=\"1\" step=\"0.1\" type=\"number\">\n  </label>\n</div>\n\n<div class=\"wave-form-container col2-container\">\n  <label class=\"wave-form sine\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"sine\" checked>\n  </label>\n  <label class=\"wave-form sawtooth\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"sawtooth\">\n  </label>\n  <label class=\"wave-form square\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"square\">\n  </label>\n</div>\n";
 
 },{}]},{},[7]);

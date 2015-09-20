@@ -57,4 +57,11 @@ describe('Sine Modulator', function() {
     jasmine.clock().tick(125);
     expect(modulatedObj.param1).toBeCloseTo(prevVal);
   });
+
+  it('doesn\'t block the param from being changed by something else', function() {
+    jasmine.clock().tick(500);
+    modulatedObj.param1 += 50;
+    jasmine.clock().tick(250);
+    expect(modulatedObj.param1).toBeCloseTo(prevVal + 50 - 0.5);
+  });
 });

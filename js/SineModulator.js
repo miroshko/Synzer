@@ -4,6 +4,7 @@ function SineModulator (options) {
   this._xOffset = 0;
   this._startedAt = 0;
   this._interval = null;
+  this._prevValue = 0;
   this.depth = options.depth || 0;
 
   Object.defineProperty(this, "frequency", { 
@@ -27,16 +28,17 @@ SineModulator.prototype.modulate = function(object, property) {
 };
 
 SineModulator.prototype.start = function() {
-  var initialValue = this._objToModulate[this._propertyToModulate];
   this._startedAt = Date.now();
   var this_ = this;
   this._interval = setInterval(function() {
-    var diff = this_._modRatioNow();
-    this_._objToModulate[this_._propertyToModulate] = initialValue + diff;
+    var value = this_._modValueNow();
+    var diff = value - this_._prevValue;
+    this_._objToModulate[this_._propertyToModulate] += diff;
+    this_._prevValue = value;
   }, 25);
 };
 
-SineModulator.prototype._modRatioNow = function(time) {
+SineModulator.prototype._modValueNow = function(time) {
   // 1 dB = 125,89%
   return Math.sin(this._nowToX() - this._xOffset) * this.depth;
 };

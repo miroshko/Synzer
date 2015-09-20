@@ -25,7 +25,6 @@ controls.on('wave-form-change', function(type) {
 });
 
 controls.on('volume-change', function(value) {
-  console.log("VOLUME IS NOW " + value)
   volume.gain.value = value;
 });
 
@@ -46,22 +45,15 @@ controls.on('tremolo-freq-change', function(value) {
   tremolo.frequency = value;
 });
 
-setInterval(function() {
-  console.log( synth.pitchShift );
-}, 250);
-
 controls.on('vibrato-on-change', function(value) {
-  console.log("vibrato-on ", value)
   parseInt(value) ? vibrato.start() : vibrato.stop();
 });
 
 controls.on('vibrato-depth-change', function(value) {
-  console.log("vibrato-depth ", value)
   vibrato.depth = value;
 });
 
 controls.on('vibrato-freq-change', function(value) {
-  console.log("vibrato-freq ", value)
   vibrato.frequency = value;
 });
 
