@@ -2,6 +2,7 @@ function Delay(audioCtx) {
   this._audioCtx = audioCtx;
   this.input = audioCtx.createGain();
   this._delayLines = [];
+  this._gainNodes = [];
   this._delayLinesInput = audioCtx.createGain();
   this._output = audioCtx.createGain();
 
@@ -9,11 +10,23 @@ function Delay(audioCtx) {
   this._latency = 0;
   this._feedback = 0;
 
+  Object.defineProperty(this, "feedback", { 
+    set: function (freq) {
+      this._feedback = freq;
+      this._gainNodes.forEach(function(gainNode, i) {
+        gainNode.gain.value = Math.pow(this._feedback, i + 1);
+      }, this);
+    },
+    get: function() {
+      return this._latency;
+    }
+  });
+
   Object.defineProperty(this, "latency", { 
     set: function (freq) {
       this._latency = freq;
       this._delayLines.forEach(function(delayLine, i) {
-        delayLine.delayTime.value = (i + 1) * this._latency;
+        delayLine.delayTime.value = (i + 1) * this._latency / 1000;
       }, this);
     },
     get: function() {
@@ -35,20 +48,30 @@ function Delay(audioCtx) {
     }
   });
 
-  this.input.connect(this._output)
+  this.input.connect(this._delayLinesInput);
+  this.input.connect(this._output);
 }
 
 Delay.prototype._pushTap = function() {
   var delay = this._audioCtx.createDelay();
-  delay.delayTime.value = this._latency * (1 + this._delayLines.length);
-  this._delayLinesInput.connect(delay);
-  delay.connect(this._output);
+  delay.delayTime.value = this._latency / 1000 * (1 + this._delayLines.length);
   this._delayLines.push(delay);
+  
+  var gainNode = this._audioCtx.createGain();
+  gainNode.gain.value = Math.pow(this._feedback, (1 + this._gainNodes.length))
+  this._gainNodes.push(gainNode);
+  
+  gainNode.connect(this._output);
+  delay.connect(gainNode);
+  this._delayLinesInput.connect(delay);
 };
 
 Delay.prototype._popTap = function() {
   var lastDelayLine = this._delayLines.pop();
-  lastDelayLine.disconnect(this._output);
+  var lastGainNode = this._gainNodes.pop();
+
+  lastDelayLine.disconnect(lastGainNode);
+  lastGainNode.disconnect(this._output);
   this._delayLinesInput.disconnect(lastDelayLine);
 };
 

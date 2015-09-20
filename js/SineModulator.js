@@ -9,6 +9,8 @@ function SineModulator (options) {
 
   Object.defineProperty(this, "frequency", { 
     set: function (frequency) {
+      // the offset is needed in order to have seamless
+      // transition between different frequencies
       this._xOffset = this._nowToX();
       this._frequency = frequency;
     },
