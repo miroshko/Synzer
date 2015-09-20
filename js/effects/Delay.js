@@ -13,9 +13,7 @@ function Delay(audioCtx) {
   Object.defineProperty(this, "feedback", { 
     set: function (freq) {
       this._feedback = freq;
-      this._gainNodes.forEach(function(gainNode, i) {
-        gainNode.gain.value = Math.pow(this._feedback, i + 1);
-      }, this);
+      this._applyParams();
     },
     get: function() {
       return this._latency;
@@ -25,9 +23,7 @@ function Delay(audioCtx) {
   Object.defineProperty(this, "latency", { 
     set: function (freq) {
       this._latency = freq;
-      this._delayLines.forEach(function(delayLine, i) {
-        delayLine.delayTime.value = (i + 1) * this._latency / 1000;
-      }, this);
+      this._applyParams();
     },
     get: function() {
       return this._latency;
@@ -51,13 +47,18 @@ function Delay(audioCtx) {
   this.input.connect(this._output);
 }
 
+Delay.prototype._applyParams = function() {
+  for(var i = 0; i < this._delayLines.length; i++) {
+    this._delayLines[i].delayTime.value = this._latency / 1000 * (i + 1);
+    this._gainNodes[i].gain.value = Math.pow(this._feedback, (1 + i))
+  }
+};
+
 Delay.prototype._pushTap = function() {
   var delay = this._audioCtx.createDelay(10.0);
-  delay.delayTime.value = this._latency / 1000 * (1 + this._delayLines.length);
   this._delayLines.push(delay);
   
   var gainNode = this._audioCtx.createGain();
-  gainNode.gain.value = Math.pow(this._feedback, (1 + this._gainNodes.length))
   this._gainNodes.push(gainNode);
   
   gainNode.connect(this._output);

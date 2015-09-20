@@ -50,9 +50,9 @@ fdescribe("Delay", function() {
   it('changes delays on frequency change', function() {
     delay.taps = 3;
     delay.latency = 200;
-    expect(delayNodes[0].delayTime.value).toEqual(0.2);
-    expect(delayNodes[1].delayTime.value).toEqual(0.4);
-    expect(delayNodes[2].delayTime.value).toEqual(0.6);
+    expect(delayNodes[0].delayTime.value).toBeCloseTo(0.2);
+    expect(delayNodes[1].delayTime.value).toBeCloseTo(0.4);
+    expect(delayNodes[2].delayTime.value).toBeCloseTo(0.6);
   });
 
   it('changes delay lines, gain nodes amount on taps change', function() {
