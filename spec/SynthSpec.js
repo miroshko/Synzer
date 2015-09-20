@@ -84,15 +84,7 @@ describe('Synth', function() {
   it('connects all oscillators when connect is called', function() {
     synth.play(aNote);
     synth.play(aNote2);
-    oscillator.connect.calls.reset();
-    synth.connect(audioContext.destination);
-    expect(oscillator.connect).toHaveBeenCalledWith(audioContext.destination);
+    expect(oscillator.connect).toHaveBeenCalledWith(gainNode);
     expect(oscillator.connect.calls.count()).toBe(2);
-  });
-
-  it('connects newly created oscillators to the destination', function() {
-    synth.connect(audioContext.destination);
-    synth.play(aNote);
-    expect(oscillator.connect).toHaveBeenCalledWith(audioContext.destination);
   });
 });
