@@ -8,6 +8,7 @@ function Synth(context) {
   this._context = context;
   this._pitchShift = 0;
   this._notes = {};
+  this._output = context.createGain();
 
   Object.defineProperty(this, "pitchShift", { 
     set: function (ps) {
@@ -50,10 +51,7 @@ Synth.prototype.stop = function(note) {
 };
 
 Synth.prototype.connect = function(output) {
-  this._output = output;
-  for (var pitch in this._oscillators) {
-    this._oscillators[pitch].connect(this._output);
-  }
+  this._output.connect(output);
 };
 
 module.exports = Synth;

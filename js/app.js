@@ -1,15 +1,18 @@
 var Keyboard = require('./Keyboard');
 var Controls = require('./Controls');
 var Synth = require('./Synth');
+var Delay = require('./effects/Delay');
 var SineModulator = require('./SineModulator');
 
 var audioCtx = new global.AudioContext();
 var synth = new Synth(audioCtx);
 var volume = audioCtx.createGain();
 var pan = audioCtx.createStereoPanner();
+var delay = new Delay(audioCtx);
 
 synth.connect(volume);
-volume.connect(pan);
+volume.connect(delay.input);
+delay.connect(pan);
 pan.connect(audioCtx.destination);
 
 var tremolo = new SineModulator();
@@ -37,8 +40,7 @@ controls.on('tremolo-on-change', function(value) {
 });
 
 controls.on('tremolo-depth-change', function(value) {
-  // 1 dB = 125,89%
-  tremolo.depth = Math.pow(1.2589, value);
+  tremolo.depth = value;
 });
 
 controls.on('tremolo-freq-change', function(value) {
@@ -57,6 +59,21 @@ controls.on('vibrato-freq-change', function(value) {
   vibrato.frequency = value;
 });
 
+controls.on('delay-on-change', function(value) {
+  parseInt(value) ? delay.start() : delay.stop();
+});
+
+controls.on('delay-feedback-change', function(value) {
+  delay.feedback = value;
+});
+
+controls.on('delay-taps-change', function(value) {
+  delay.taps = value;
+});
+
+controls.on('delay-latency-change', function(value) {
+  delay.latency = value;
+});
 
 controls.activate();
 
