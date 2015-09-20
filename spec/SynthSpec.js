@@ -45,6 +45,7 @@ describe('Synth', function() {
   it('starts playing', function() {
     synth.play(aNote);
     expect(oscillator.start).toHaveBeenCalledWith(0);
+    expect(oscillator.frequency.value).toEqual(aNote.frequency);
   });
 
   it('stops playing', function() {

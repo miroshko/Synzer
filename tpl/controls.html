@@ -2,41 +2,59 @@
 
 <div class="col1-container">
   <h3>Tremolo</h3>
+  <label>
+    <input type="radio" name="tremolo-on" value="1"><span>ON</span>
+  </label>
+  <label>
+    <input type="radio" type="radio" name="tremolo-on" value="0" checked="true"><span>OFF</span>
+  </label>
   <label class="osc1-depth">
     <span>Depth</span>
-    <input type="number" value="100" max="100" min="0">
+    <input type="number" name="tremolo-depth" value="3" max="1000" min="0">
   </label>
   <label class="osc1-length">
     <span>Freq</span>
-    <input type="number" value="2">
+    <input type="number" name="tremolo-freq" value="2">
   </label>
 </div>
 
 <div class="col1-container">
   <h3>Vibrato</h3>
+  <label>
+    <input type="radio" name="vibrato-on" value="1"><span>ON</span>
+  </label>
+  <label>
+    <input type="radio" type="radio" name="vibrato-on" value="0" checked="true"><span>OFF</span>
+  </label>
   <label class="osc1-depth">
     <span>Depth</span>
-    <input type="number" value="100" max="100" min="0">
+    <input type="number" name="vibrato-depth" value="5" max="20" min="0">
   </label>
   <label class="osc1-length">
-    <span>Freq</span>
-    <input type="number" min="" value="2">
+    <span>Cent</span>
+    <input type="number" name="vibrato-freq" min="" max="200" value="5">
   </label>
 </div>
 
 <div class="col1-container">
   <h3>Delay</h3>
-  <label class="osc1-depth">
+  <label>
+    <input type="radio" name="delay-on" value="1"><span>ON</span>
+  </label>
+  <label>
+    <input type="radio" type="radio" name="delay-on" value="0" checked="true"><span>OFF</span>
+  </label>
+  <label class="delay-taps">
     <span>Taps</span>
-    <input type="number" value="2" max="10" min="0">
+    <input type="number" name="delay-taps" value="2" max="10" min="0">
   </label>
-  <label class="osc1-depth">
+  <label class="delay-feedback">
     <span>Feedback</span>
-    <input type="number" value="50" max="100" min="0">
+    <input type="number" name="delay-feedback" value="50" max="100" min="0">
   </label>
-  <label class="osc1-length">
+  <label class="delay-freq">
     <span>Freq</span>
-    <input type="number" value="2">
+    <input type="number" name="delay-freq" value="2">
   </label>
 </div>
 

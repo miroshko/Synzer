@@ -2,20 +2,10 @@ var sawtooth = require('./waveforms/sawtooth');
 var square = require('./waveforms/square');
 var sine = require('./waveforms/sine');
 
-function Synth() {
-  this.context = new global.AudioContext;
-
-  this.oscillators = {};
-
-  this.stereoPanner = this.context.createStereoPanner();
-  this.stereoPanner.pan.value = this._pan;
-  this.stereoPanner.connect(this.context.destination);
-
-  this.gain = this.context.createGain();
-  this.gain.value = this._volume;
-  this.gain.connect(this.stereoPanner);
- 
+function Synth(context) {
+  this._oscillators = {};
   this._waveForm = null;
+  this._context = context;
 }
 
 // defaults
@@ -30,31 +20,28 @@ Synth.prototype.setWaveForm = function(waveForm) {
   }[waveForm];
 };
 
-Synth.prototype.setVolume = function(volume) {
-  this.volume = volume;
-  this.gain.gain.value = this.volume;
-};
-
-Synth.prototype.setPan = function(pan) {
-  this.pan = pan;
-  this.stereoPanner.pan.value = this.pan;
-};
-
 Synth.prototype.play = function(note) {
   var oscillator;
-  if (!this.oscillators[note.pitch]) {
-    oscillator = this.oscillators[note.pitch] = this.context.createOscillator()
+  if (!this._oscillators[note.pitch]) {
+    oscillator = this._oscillators[note.pitch] = this._context.createOscillator()
   }
 
   oscillator.setPeriodicWave(this._waveForm || sine);
   oscillator.frequency.value = note.frequency;
-  oscillator.connect(this.gain);
+  oscillator.connect(this._output);
   oscillator.start(0);
 };
 
 Synth.prototype.stop = function(note) {
-  this.oscillators[note.pitch].stop(0);
-  delete this.oscillators[note.pitch];
+  this._oscillators[note.pitch].stop(0);
+  delete this._oscillators[note.pitch];
+};
+
+Synth.prototype.connect = function(output) {
+  this._output = output;
+  for (var pitch in this.oscillators) {
+    this.oscillators[pitch].connect(this._output);
+  }
 };
 
 module.exports = Synth;

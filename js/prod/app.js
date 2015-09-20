@@ -168,25 +168,14 @@ Note.prototype._freq = function(pitch) {
 
 module.exports = Note;
 },{}],5:[function(require,module,exports){
-(function (global){
 var sawtooth = require('./waveforms/sawtooth');
 var square = require('./waveforms/square');
 var sine = require('./waveforms/sine');
 
-function Synth() {
-  this.context = new global.AudioContext;
-
-  this.oscillators = {};
-
-  this.stereoPanner = this.context.createStereoPanner();
-  this.stereoPanner.pan.value = this._pan;
-  this.stereoPanner.connect(this.context.destination);
-
-  this.gain = this.context.createGain();
-  this.gain.value = this._volume;
-  this.gain.connect(this.stereoPanner);
- 
+function Synth(context) {
+  this._oscillators = {};
   this._waveForm = null;
+  this._context = context;
 }
 
 // defaults
@@ -201,36 +190,33 @@ Synth.prototype.setWaveForm = function(waveForm) {
   }[waveForm];
 };
 
-Synth.prototype.setVolume = function(volume) {
-  this.volume = volume;
-  this.gain.gain.value = this.volume;
-};
-
-Synth.prototype.setPan = function(pan) {
-  this.pan = pan;
-  this.stereoPanner.pan.value = this.pan;
-};
-
 Synth.prototype.play = function(note) {
   var oscillator;
-  if (!this.oscillators[note.pitch]) {
-    oscillator = this.oscillators[note.pitch] = this.context.createOscillator()
+  if (!this._oscillators[note.pitch]) {
+    oscillator = this._oscillators[note.pitch] = this._context.createOscillator()
   }
 
   oscillator.setPeriodicWave(this._waveForm || sine);
   oscillator.frequency.value = note.frequency;
-  oscillator.connect(this.gain);
+  oscillator.connect(this._output);
   oscillator.start(0);
 };
 
 Synth.prototype.stop = function(note) {
-  this.oscillators[note.pitch].stop(0);
-  delete this.oscillators[note.pitch];
+  this._oscillators[note.pitch].stop(0);
+  delete this._oscillators[note.pitch];
+};
+
+Synth.prototype.connect = function(output) {
+  this._output = output;
+  for (var pitch in this.oscillators) {
+    this.oscillators[pitch].connect(this._output);
+  }
 };
 
 module.exports = Synth;
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./waveforms/sawtooth":7,"./waveforms/sine":8,"./waveforms/square":9}],6:[function(require,module,exports){
+(function (global){
 var Keyboard = require('./Keyboard');
 var Controls = require('./Controls');
 var Synth = require('./Synth');
@@ -238,7 +224,14 @@ var Synth = require('./Synth');
 var keyboardEl = document.querySelector('.keyboard');
 var controlsEl = document.querySelector('.controls');
 
-var synth = new Synth();
+var audioCtx = new global.AudioContext();
+var synth = new Synth(audioCtx);
+var volume = audioCtx.createGain();
+
+
+synth.connect(volume);
+volume.connect(audioCtx.destination);
+
 var controls = new Controls(controlsEl);
 
 controls.on('wave-form-change', function(type) {
@@ -246,11 +239,11 @@ controls.on('wave-form-change', function(type) {
 });
 
 controls.on('volume-change', function(value) {
-  synth.setVolume(value);
+  volume.gain.value = value;
 });
 
 controls.on('pan-change', function(value) {
-  synth.setPan(value);
+  // pan.pan.value = value;
 });
 
 controls.activate();
@@ -267,6 +260,7 @@ keyboard.on('noteReleased', function(note) {
   synth.stop(note);
 });
 
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./Controls":1,"./Keyboard":2,"./Synth":5}],7:[function(require,module,exports){
 (function (global){
 var context = new global.AudioContext();
@@ -311,6 +305,6 @@ module.exports = wave;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],10:[function(require,module,exports){
-module.exports = "<link rel=\"stylesheet\" href=\"css/controls.css\">\n\n<div class=\"col1-container\">\n  <h3>Tremolo</h3>\n  <label class=\"osc1-depth\">\n    <span>Depth</span>\n    <input type=\"number\" value=\"100\" max=\"100\" min=\"0\">\n  </label>\n  <label class=\"osc1-length\">\n    <span>Freq</span>\n    <input type=\"number\" value=\"2\">\n  </label>\n</div>\n\n<div class=\"col1-container\">\n  <h3>Vibrato</h3>\n  <label class=\"osc1-depth\">\n    <span>Depth</span>\n    <input type=\"number\" value=\"100\" max=\"100\" min=\"0\">\n  </label>\n  <label class=\"osc1-length\">\n    <span>Freq</span>\n    <input type=\"number\" min=\"\" value=\"2\">\n  </label>\n</div>\n\n<div class=\"col1-container\">\n  <h3>Delay</h3>\n  <label class=\"osc1-depth\">\n    <span>Taps</span>\n    <input type=\"number\" value=\"2\" max=\"10\" min=\"0\">\n  </label>\n  <label class=\"osc1-depth\">\n    <span>Feedback</span>\n    <input type=\"number\" value=\"50\" max=\"100\" min=\"0\">\n  </label>\n  <label class=\"osc1-length\">\n    <span>Freq</span>\n    <input type=\"number\" value=\"2\">\n  </label>\n</div>\n\n<div class=\"volume-pan-container col1-container\">\n  <label class=\"volume\">\n    <span>Volume</span>\n    <input class=\"volume\" name=\"volume\" value=\"0.5\" min=\"0\" max=\"1\" step=\"0.1\" type=\"number\">\n  </label>\n  <label class=\"pan\">\n    <span>Pan</span>\n    <input class=\"volume\" name=\"pan\" value=\"0\" min=\"-1\" max=\"1\" step=\"0.1\" type=\"number\">\n  </label>\n</div>\n\n<div class=\"wave-form-container col2-container\">\n  <label class=\"wave-form sine\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"sine\" checked>\n  </label>\n  <label class=\"wave-form sawtooth\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"sawtooth\">\n  </label>\n  <label class=\"wave-form square\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"square\">\n  </label>\n</div>\n";
+module.exports = "<link rel=\"stylesheet\" href=\"css/controls.css\">\n\n<div class=\"col1-container\">\n  <h3>Tremolo</h3>\n  <label>\n    <input type=\"radio\" name=\"tremolo-on\" value=\"1\"><span>ON</span>\n  </label>\n  <label>\n    <input type=\"radio\" type=\"radio\" name=\"tremolo-on\" value=\"0\" checked=\"true\"><span>OFF</span>\n  </label>\n  <label class=\"osc1-depth\">\n    <span>Depth</span>\n    <input type=\"number\" name=\"tremolo-depth\" value=\"3\" max=\"1000\" min=\"0\">\n  </label>\n  <label class=\"osc1-length\">\n    <span>Freq</span>\n    <input type=\"number\" name=\"tremolo-freq\" value=\"2\">\n  </label>\n</div>\n\n<div class=\"col1-container\">\n  <h3>Vibrato</h3>\n  <label>\n    <input type=\"radio\" name=\"vibrato-on\" value=\"1\"><span>ON</span>\n  </label>\n  <label>\n    <input type=\"radio\" type=\"radio\" name=\"vibrato-on\" value=\"0\" checked=\"true\"><span>OFF</span>\n  </label>\n  <label class=\"osc1-depth\">\n    <span>Depth</span>\n    <input type=\"number\" name=\"vibrato-depth\" value=\"5\" max=\"20\" min=\"0\">\n  </label>\n  <label class=\"osc1-length\">\n    <span>Cent</span>\n    <input type=\"number\" name=\"vibrato-freq\" min=\"\" max=\"200\" value=\"5\">\n  </label>\n</div>\n\n<div class=\"col1-container\">\n  <h3>Delay</h3>\n  <label>\n    <input type=\"radio\" name=\"delay-on\" value=\"1\"><span>ON</span>\n  </label>\n  <label>\n    <input type=\"radio\" type=\"radio\" name=\"delay-on\" value=\"0\" checked=\"true\"><span>OFF</span>\n  </label>\n  <label class=\"delay-taps\">\n    <span>Taps</span>\n    <input type=\"number\" name=\"delay-taps\" value=\"2\" max=\"10\" min=\"0\">\n  </label>\n  <label class=\"delay-feedback\">\n    <span>Feedback</span>\n    <input type=\"number\" name=\"delay-feedback\" value=\"50\" max=\"100\" min=\"0\">\n  </label>\n  <label class=\"delay-freq\">\n    <span>Freq</span>\n    <input type=\"number\" name=\"delay-freq\" value=\"2\">\n  </label>\n</div>\n\n<div class=\"volume-pan-container col1-container\">\n  <label class=\"volume\">\n    <span>Volume</span>\n    <input class=\"volume\" name=\"volume\" value=\"0.5\" min=\"0\" max=\"1\" step=\"0.1\" type=\"number\">\n  </label>\n  <label class=\"pan\">\n    <span>Pan</span>\n    <input class=\"volume\" name=\"pan\" value=\"0\" min=\"-1\" max=\"1\" step=\"0.1\" type=\"number\">\n  </label>\n</div>\n\n<div class=\"wave-form-container col2-container\">\n  <label class=\"wave-form sine\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"sine\" checked>\n  </label>\n  <label class=\"wave-form sawtooth\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"sawtooth\">\n  </label>\n  <label class=\"wave-form square\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"square\">\n  </label>\n</div>\n";
 
 },{}]},{},[6]);
