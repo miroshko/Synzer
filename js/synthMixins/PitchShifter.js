@@ -24,6 +24,7 @@ function PitchShifter() {
     var osc = oscillators[note.pitch] = old.play.call(this, note);
     osc.baseFrequency = note.frequency;
     osc.frequency.value = osc.baseFrequency * Math.pow(2, this._pitchShift/1200);
+    return osc;
   };
 
   this.stop = function(note) {
