@@ -45,10 +45,11 @@ function ADSR() {
     var this_ = this;
     var gain = gainNodes[note.pitch];
     var osc = oscillators[note.pitch];
+    var gainOnRelease = gain.gain.value;
     var interval = setInterval(function() {
       var diff = Date.now() - releasedAt;
       if (diff < this_.ADSR.R) {
-        gain.gain.value = this_.ADSR.S * (1 - diff / this_.ADSR.R);
+        gain.gain.value = gainOnRelease * (1 - diff / this_.ADSR.R);
       } else {
         clearInterval(interval);
         gain.gain.value = 0;

@@ -85,7 +85,7 @@ describe('synthMixins', function() {
     });
   });
 
-  fdescribe('ADSR', function (argument) {
+  describe('ADSR', function (argument) {
     beforeEach(function() {
       ADSR.call(synth);
       synth.ADSR.A = 100;
@@ -145,7 +145,7 @@ describe('synthMixins', function() {
       expect(gainNode.gain.value).toBeCloseTo(0.4);
     });
 
-    fit('R (Attack) property can be set', function() {
+    it('R (Release) property can be set', function() {
       synth.ADSR.A = 100;
       synth.ADSR.D = 100;
       synth.ADSR.S = 0.1;
@@ -157,6 +157,21 @@ describe('synthMixins', function() {
       jasmine.clock().tick(200);
       expect(gainNode.gain.value).toBeCloseTo(0.05);
       jasmine.clock().tick(200);
+      expect(gainNode.gain.value).toBeCloseTo(0);
+    });
+
+    it('Release before A or D is finished cases decrease from the current level', function() {
+      synth.ADSR.A = 100;
+      synth.ADSR.D = 100;
+      synth.ADSR.S = 0.6;
+      synth.ADSR.R = 600;
+      synth.play(note);
+      jasmine.clock().tick(80);
+      synth.stop(note);
+      expect(gainNode.gain.value).toBeCloseTo(0.8);
+      jasmine.clock().tick(300);
+      expect(gainNode.gain.value).toBeCloseTo(0.4);
+      jasmine.clock().tick(300);
       expect(gainNode.gain.value).toBeCloseTo(0);
     });
   })
