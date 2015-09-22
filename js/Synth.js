@@ -1,6 +1,3 @@
-var sawtooth = require('./waveforms/sawtooth');
-var square = require('./waveforms/square');
-var sine = require('./waveforms/sine');
 var PitchShifter = require('./synthMixins/PitchShifter')
 var ADSR = require('./synthMixins/ADSR')
 
@@ -14,7 +11,8 @@ function Synth(context) {
 Synth.prototype.play = function(note) {
   var oscillator;
 
-  if (!this._oscillators[note.pitch]) {
+  oscillator = this._oscillators[note.pitch];
+  if (!oscillator) {
     oscillator = this._oscillators[note.pitch] = this._context.createOscillator()
   }
 

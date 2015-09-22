@@ -1,6 +1,6 @@
 var Delay = require('../js/effects/Delay');
 
-fdescribe("Delay", function() {
+describe("Delay", function() {
   var delay, delayNodes, audioContext;
 
   beforeEach(function() {
