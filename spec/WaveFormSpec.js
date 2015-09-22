@@ -6,6 +6,27 @@ var WaveForm = proxyquire('../js/synthMixins/WaveForm', {
   '../waveforms/square': {periodicWave: true, square: true}
 });
 
-describe("WaveForm", function() {
-  
+fdescribe("WaveForm", function() {
+  var oscillator;
+  beforeEach(function() {
+    oscillator = jasmine.createSpyObj('oscillator', ['setPeriodicWave', 'connect', 'start', 'stop']);
+    audioContext = {
+      createOscillator: function() {},
+    };
+    spyOn(audioContext, 'createOscillator').and.returnValue(oscillator);
+
+    synth = {
+      play: function() { return oscillator; },
+      stop: function() {}
+    };
+    WaveForm.call(synth);
+  });
+
+  it('sets wave form', function() {
+    synth.waveForm = 'square';
+    synth.play({pitch:44, frequency:100});
+    expect(oscillator.setPeriodicWave).toHaveBeenCalledWith(
+      jasmine.objectContaining({periodicWave: true, square: true})
+    );
+  });
 });

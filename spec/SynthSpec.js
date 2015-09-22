@@ -58,14 +58,6 @@ describe('Synth', function() {
     expect(oscillator.start.calls.count()).toBe(2);
   });
 
-  xit('sets wave form', function() {
-    synth.setWaveForm('square');
-    synth.play(aNote);
-    expect(oscillator.setPeriodicWave).toHaveBeenCalledWith(
-      jasmine.objectContaining({periodicWave: true, square: true})
-    );
-  });
-
   xit('uses sine if no wave form is set', function() {
     synth.play(aNote);
     expect(oscillator.setPeriodicWave).toHaveBeenCalledWith(
