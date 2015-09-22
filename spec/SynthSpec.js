@@ -1,5 +1,8 @@
 var proxyquire = require('proxyquire').noCallThru();
 var Synth = proxyquire('../js/Synth', {
+  './synthMixins/ADSR': function() {},
+  './synthMixins/PitchShifter': function() {},
+  './synthMixins/WaveForm': function() {}
 });
 
 describe('Synth', function() {

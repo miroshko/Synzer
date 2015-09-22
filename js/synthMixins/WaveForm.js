@@ -24,6 +24,7 @@ function WaveForm() {
   this.play = function() {
     var osc = old.play.apply(this, arguments);
     osc.setPeriodicWave(this._waveForm || sine);
+    return osc;
   }
 
   this.stop = function() {

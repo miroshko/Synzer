@@ -1,4 +1,5 @@
 var WaveForm = require('./synthMixins/WaveForm')
+var PitchShifter = require('./synthMixins/PitchShifter')
 
 function Synth(context) {
   this._oscillators = {};
@@ -7,6 +8,8 @@ function Synth(context) {
   this._output = context.createGain();
 
   WaveForm.apply(this, arguments);
+  PitchShifter.apply(this, arguments);
+  PitchShifter.apply(this, arguments);
 }
 
 Synth.prototype.play = function(note) {
