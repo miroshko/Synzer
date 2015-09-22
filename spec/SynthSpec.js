@@ -58,42 +58,10 @@ describe('Synth', function() {
     expect(oscillator.start.calls.count()).toBe(2);
   });
 
-  xit('uses sine if no wave form is set', function() {
-    synth.play(aNote);
-    expect(oscillator.setPeriodicWave).toHaveBeenCalledWith(
-      jasmine.objectContaining({periodicWave: true, sine: true})
-    );
-  });
-
-  xit('sets pitchshift', function() {
-    synth.pitchShift = 1;
-    synth.play(aNote);
-    expect(oscillator.frequency.value).toBeCloseTo(440 * (Math.pow(2, 1/1200)));
-
-    synth.pitchShift = 10;
-    expect(oscillator.frequency.value).toBeCloseTo(440 * (Math.pow(2, 10/1200)));
-
-    synth.pitchShift = 1200;
-    expect(oscillator.frequency.value).toBeCloseTo(880);
-
-    synth.pitchShift = -1200;
-    expect(oscillator.frequency.value).toBeCloseTo(220);
-  });
-
   it('connects all oscillators when connect is called', function() {
     synth.play(aNote);
     synth.play(aNote2);
     expect(oscillator.connect).toHaveBeenCalledWith(gainNode);
     expect(oscillator.connect.calls.count()).toBe(2);
-  });
-
-  xit('sets ADSR', function() {
-    synth.A_duration = 40;
-    synth.D_duration = 280;
-    synth.S_duration = 400;
-    synth.R_duration = 400;
-    synth.A_dy = 1;
-    synth.D_dy = -0.2;
-    synth.S_dy = 0;
   });
 });

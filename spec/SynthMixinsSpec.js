@@ -7,25 +7,29 @@ var WaveForm = proxyquire('../js/synthMixins/WaveForm', {
 });
 var PitchShifter = require('../js/synthMixins/PitchShifter');
 
-var oscillator, audioContext, note;
 
-describe("Mixins", function() {
+
+describe('synthMixins', function() {
+  var oscillator, audioContext, note;
   beforeEach(function() {
     oscillator = jasmine.createSpyObj('oscillator', ['setPeriodicWave', 'connect', 'start', 'stop']);
+    oscillator.frequency = {};
     audioContext = {
       createOscillator: function() {},
     };
     spyOn(audioContext, 'createOscillator').and.returnValue(oscillator);
 
     synth = {
-      play: function() { return oscillator; },
+      play: function(note) {
+        oscillator.frequency.value = note.frequency;
+        return oscillator;
+      },
       stop: function() {}
     };
-
-    note = {pitch:44, frequency:100};
+    note = {pitch:44, frequency:100}
   });
 
-  describe('WaveForm', function() {
+  describe("WaveForm", function() {
     beforeEach(function() {
       WaveForm.call(synth);
     });
@@ -46,9 +50,25 @@ describe("Mixins", function() {
     });
   });
 
-  describe('', function() {
+  describe('PitchShifter', function() {
     beforeEach(function() {
       PitchShifter.call(synth);
     });
+
+    it('sets pitchshift', function() {
+      synth.pitchShift = 1;
+      synth.play(note);
+      expect(oscillator.frequency.value).toBeCloseTo(note.frequency * (Math.pow(2, 1/1200)));
+
+      synth.pitchShift = 10;
+      expect(oscillator.frequency.value).toBeCloseTo(note.frequency * (Math.pow(2, 10/1200)));
+
+      synth.pitchShift = 1200;
+      expect(oscillator.frequency.value).toBeCloseTo(note.frequency * 2);
+
+      synth.pitchShift = -1200;
+      expect(oscillator.frequency.value).toBeCloseTo(note.frequency / 2);
+    });
   });
 });
+
