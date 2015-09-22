@@ -24,7 +24,7 @@ vibrato.modulate(synth, 'pitchShift');
 var controls = new Controls(document.querySelector('.controls'));
 
 controls.on('wave-form-change', function(type) {
-  synth.setWaveForm(type);
+  synth.waveForm = type;
 });
 
 controls.on('volume-change', function(value) {

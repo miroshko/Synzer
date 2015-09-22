@@ -87,4 +87,14 @@ describe('Synth', function() {
     expect(oscillator.connect).toHaveBeenCalledWith(gainNode);
     expect(oscillator.connect.calls.count()).toBe(2);
   });
+
+  it('sets ADSR', function() {
+    synth.A_duration = 40;
+    synth.D_duration = 280;
+    synth.S_duration = 400;
+    synth.R_duration = 400;
+    synth.A_dy = 1;
+    synth.D_dy = -0.2;
+    synth.S_dy = 0;
+  });
 });
