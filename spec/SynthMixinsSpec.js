@@ -121,12 +121,28 @@ describe('synthMixins', function() {
       expect(gainNode.gain.value).toBe(1);
     });
 
-    it('D (Attack) property can be set', function() {
-
+    it('D (Decay) property can be set', function() {
+      synth.ADSR.S = 0.2;
+      synth.ADSR.A = 100;
+      synth.ADSR.D = 500;
+      synth.play(note);
+      jasmine.clock().tick(100);
+      expect(gainNode.gain.value).toBeCloseTo(1);
+      jasmine.clock().tick(250);
+      expect(gainNode.gain.value).toBeCloseTo(0.6);
+      jasmine.clock().tick(250);
+      expect(gainNode.gain.value).toBeCloseTo(0.2);
     });
 
-    it('S (Attack) property can be set', function() {
-
+    it('S (Sustain) property can be set', function() {
+      synth.ADSR.S = 0.4;
+      synth.ADSR.A = 200;
+      synth.ADSR.D = 300;
+      synth.play(note);
+      jasmine.clock().tick(500);
+      expect(gainNode.gain.value).toBe(0.4);
+      jasmine.clock().tick(1000);
+      expect(gainNode.gain.value).toBe(0.4);
     });
 
     it('R (Attack) property can be set', function() {

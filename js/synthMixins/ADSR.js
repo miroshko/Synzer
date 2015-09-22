@@ -27,10 +27,14 @@ function ADSR() {
     var startedAt = Date.now();
     var interval = setInterval(function() {
       var diff = Date.now() - startedAt;
-      if (diff > this_.ADSR.A) {
-        return clearInterval(interval);
+      if (diff < this_.ADSR.A) {
+        gain.gain.value = diff / this_.ADSR.A;
+      } else if (diff < this_.ADSR.A + this_.ADSR.D) {
+        gain.gain.value = 1 - (diff - this_.ADSR.A) / (this_.ADSR.D / (1 - this_.ADSR.S));
+      } else {
+        gain.gain.value = this_.ADSR.S;
+        clearInterval(interval);
       }
-      gain.gain.value = diff / this_.ADSR.A;
     }, 10);
 
     return osc;
