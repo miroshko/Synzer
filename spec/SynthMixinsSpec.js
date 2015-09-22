@@ -13,7 +13,7 @@ describe('synthMixins', function() {
   beforeEach(function() {
     oscillator = jasmine.createSpyObj('oscillator', ['setPeriodicWave', 'connect', 'disconnect', 'start', 'stop']);
     oscillator.frequency = {};
-    gainNode = jasmine.createSpyObj('gainNode', ['connect']);
+    gainNode = jasmine.createSpyObj('gainNode', ['connect', 'disconnect']);
     gainNode.gain = {};
 
     audioContext = {
@@ -140,13 +140,24 @@ describe('synthMixins', function() {
       synth.ADSR.D = 300;
       synth.play(note);
       jasmine.clock().tick(500);
-      expect(gainNode.gain.value).toBe(0.4);
+      expect(gainNode.gain.value).toBeCloseTo(0.4);
       jasmine.clock().tick(1000);
-      expect(gainNode.gain.value).toBe(0.4);
+      expect(gainNode.gain.value).toBeCloseTo(0.4);
     });
 
-    it('R (Attack) property can be set', function() {
-
+    fit('R (Attack) property can be set', function() {
+      synth.ADSR.A = 100;
+      synth.ADSR.D = 100;
+      synth.ADSR.S = 0.1;
+      synth.ADSR.R = 400;
+      synth.play(note);
+      jasmine.clock().tick(1000);
+      synth.stop(note);
+      expect(gainNode.gain.value).toBeCloseTo(0.1);
+      jasmine.clock().tick(200);
+      expect(gainNode.gain.value).toBeCloseTo(0.05);
+      jasmine.clock().tick(200);
+      expect(gainNode.gain.value).toBeCloseTo(0);
     });
   })
 });

@@ -41,8 +41,24 @@ function ADSR() {
   };
 
   this.stop = function(note) {
-    // delete oscillators[note.pitch];
-    // old.stop.call(this, note);
+    var releasedAt = Date.now();
+    var this_ = this;
+    var gain = gainNodes[note.pitch];
+    var osc = oscillators[note.pitch];
+    var interval = setInterval(function() {
+      var diff = Date.now() - releasedAt;
+      if (diff < this_.ADSR.R) {
+        gain.gain.value = this_.ADSR.S * (1 - diff / this_.ADSR.R);
+      } else {
+        clearInterval(interval);
+        gain.gain.value = 0;
+        old.stop();
+        osc.disconnect(gainNodes[note.pitch]);
+        gain.disconnect(this.output);
+        delete oscillators[note.pitch];
+        delete gain[note.pitch];
+      }
+    }, 10);
   };
 }
 
