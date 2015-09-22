@@ -1,21 +1,18 @@
-var PitchShifter = require('./synthMixins/PitchShifter')
-var ADSR = require('./synthMixins/ADSR')
+var WaveForm = require('./synthMixins/WaveForm')
 
 function Synth(context) {
   this._oscillators = {};
   this._context = context;
   this._notes = {};
   this._output = context.createGain();
+
+  WaveForm.apply(this, arguments);
 }
 
 Synth.prototype.play = function(note) {
   var oscillator;
 
-  oscillator = this._oscillators[note.pitch];
-  if (!oscillator) {
-    oscillator = this._oscillators[note.pitch] = this._context.createOscillator()
-  }
-
+  oscillator = this._oscillators[note.pitch] = this._context.createOscillator()
   oscillator.frequency.value = note.frequency;
   oscillator.connect(this._output);
   oscillator.start(0);
