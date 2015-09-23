@@ -1,5 +1,5 @@
 function PitchShifter() {
-  this.pitchShift = 0;
+  this._pitchShift = 0;
   var oscillators = {};
 
   Object.defineProperty(this, "pitchShift", { 
@@ -29,7 +29,7 @@ function PitchShifter() {
 
   this.stop = function(note) {
     delete oscillators[note.pitch];
-    old.stop.call(this, note);
+    old.stop.apply(this, arguments);
   };
 
 }

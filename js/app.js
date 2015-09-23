@@ -75,6 +75,26 @@ controls.on('delay-latency-change', function(value) {
   delay.latency = value;
 });
 
+controls.on('delay-latency-change', function(value) {
+  delay.latency = value;
+});
+
+controls.on('adsr-a-change', function(value) {
+  synth.ADSR.A = value;
+});
+
+controls.on('adsr-d-change', function(value) {
+  synth.ADSR.D = value;
+});
+
+controls.on('adsr-s-change', function(value) {
+  synth.ADSR.S = value;
+});
+
+controls.on('adsr-r-change', function(value) {
+  synth.ADSR.R = value;
+});
+
 controls.activate();
 
 var keyboard = new Keyboard(document.querySelector('.keyboard'));

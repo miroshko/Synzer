@@ -1,25 +1,39 @@
 @import url(https://fonts.googleapis.com/css?family=Indie+Flower);
 
 .controls {
-  width: 710px;
+  width: 790px;
   font-family: 'Indie Flower';
   font-size: 22px;
 }
 
-.col2-container {
+.col2-container, .col3-container, .col5-container, .col6-container {
   display: inline-block;
   margin-top: 10px;
-  width: 300px;
   text-align: right;
   vertical-align: top;
 }
 
-.col1-container {
-  display: inline-block;
-  margin-top: 10px;
+.col2-container {
+  width: 100px;
+}
+
+.col3-container {
   width: 150px;
-  text-align: right;
-  vertical-align: top;
+}
+
+.col5-container {
+  width: 250px;
+}
+
+.col6-container {
+  width: 300px;
+}
+
+
+
+.adsr-image {
+  width: 120px;
+  height: 90px;
 }
 
 .wave-form {

@@ -1,6 +1,6 @@
 <link rel="stylesheet" href="css/controls.css">
 
-<div class="col1-container">
+<div class="col3-container">
   <h3>Tremolo</h3>
   <label>
     <input type="radio" name="tremolo-on" value="1"><span>ON</span>
@@ -18,7 +18,7 @@
   </label>
 </div>
 
-<div class="col1-container">
+<div class="col3-container">
   <h3>Vibrato</h3>
   <label>
     <input type="radio" name="vibrato-on" value="1"><span>ON</span>
@@ -36,7 +36,7 @@
   </label>
 </div>
 
-<div class="col1-container">
+<div class="col3-container">
   <h3>Delay</h3>
   <label>
     <input type="radio" name="delay-on" value="1"><span>ON</span>
@@ -58,11 +58,30 @@
   </label>
 </div>
 
-<div class="col1-container">
-  <h3>ADSR</h3>
+<div class="col5-container adsr-container">
+  <h3>ADSR envelope</h3>
+  <div class="col2-container">
+    <label class="ADSR-A">
+      <span>A</span>
+      <input type="number" name="adsr-a" value="50" max="1000" step="10">
+    </label><br>
+    <label class="ADSR-D">
+      <span>D</span>
+      <input type="number" name="adsr-d" value="50" min="0" max="5000" step="50">
+    </label><br>
+    <label class="ADSR-S">
+      <span>S</span>
+      <input type="number" name="adsr-s" value="0.7" min="0" max="1" step="0.1">
+    </label><br>
+    <label class="ADSR-R">
+      <span>R</span>
+      <input type="number" name="adsr-r" value="300" min="0" max="5000" step="100">
+    </label><br>
+  </div>
+  <img src="img/adsr.png" class="adsr-image" alt="ADSR">
 </div>
 
-<div class="volume-pan-container col1-container">
+<div class="volume-pan-container col3-container">
   <label class="volume">
     <span>Volume</span>
     <input class="volume" name="volume" value="0.5" min="0" max="1" step="0.1" type="number">
@@ -73,7 +92,7 @@
   </label>
 </div>
 
-<div class="wave-form-container col2-container">
+<div class="wave-form-container col6-container">
   <label class="wave-form sine">
     <span class="img"></span><br>
     <input type="radio" name="wave-form" value="sine" checked>

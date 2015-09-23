@@ -23,6 +23,11 @@ function ADSR() {
     gain.connect(this.output);
     gain.gain.value = 0;
 
+    this.ADSR.A = parseInt(this.ADSR.A);
+    this.ADSR.D = parseInt(this.ADSR.D);
+    this.ADSR.S = parseFloat(this.ADSR.S);
+    this.ADSR.R = parseInt(this.ADSR.R);
+
     var this_ = this;
     var startedAt = Date.now();
     var interval = setInterval(function() {
@@ -43,6 +48,7 @@ function ADSR() {
   this.stop = function(note) {
     var releasedAt = Date.now();
     var this_ = this;
+    var arguments_ = arguments;
     var gain = gainNodes[note.pitch];
     var osc = oscillators[note.pitch];
     var gainOnRelease = gain.gain.value;
@@ -53,7 +59,7 @@ function ADSR() {
       } else {
         clearInterval(interval);
         gain.gain.value = 0;
-        old.stop();
+        old.stop.apply(this_, arguments_);
         osc.disconnect(gainNodes[note.pitch]);
         gain.disconnect(this.output);
         delete oscillators[note.pitch];
