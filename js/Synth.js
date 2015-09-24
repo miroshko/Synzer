@@ -7,7 +7,6 @@ function Synth(context) {
   this.output = context.createGain();
   
   this._oscillators = {};
-  this._notes = {};
 
   WaveForm.apply(this, arguments);
   PitchShifter.apply(this, arguments);
