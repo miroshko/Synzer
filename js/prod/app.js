@@ -231,7 +231,6 @@ function Synth(context) {
   this.output = context.createGain();
   
   this._oscillators = {};
-  this._notes = {};
 
   WaveForm.apply(this, arguments);
   PitchShifter.apply(this, arguments);
@@ -241,7 +240,7 @@ function Synth(context) {
 Synth.prototype.play = function(note) {
   var oscillator;
 
-  oscillator = this._oscillators[note.pitch] = this.audioContext.createOscillator()
+  oscillator = this._oscillators[note.pitch] = this.audioContext.createOscillator();
   oscillator.frequency.value = note.frequency;
   oscillator.connect(this.output);
   oscillator.start(0);
@@ -471,7 +470,6 @@ module.exports = Delay;
 
 },{}],9:[function(require,module,exports){
 function ADSR() {
-  // S_duration and R_dy are always the rest
   this.ADSR = {
     A: null,
     D: null,
@@ -619,12 +617,11 @@ module.exports = WaveForm;
 },{"../waveforms/sawtooth":12,"../waveforms/sine":13,"../waveforms/square":14}],12:[function(require,module,exports){
 (function (global){
 var context = new global.AudioContext();
-var approaches = 128;
-var real = new global.Float32Array(approaches);
-var imag = new global.Float32Array(approaches);
+var steps = 128;
+var real = new global.Float32Array(steps);
+var imag = new global.Float32Array(steps);
 
-real[0] = 0.5;
-for (var i = 1; i < approaches; i++) {
+for (var i = 1; i < steps; i++) {
     imag[i] = 1 / (i * Math.PI);
 }
 

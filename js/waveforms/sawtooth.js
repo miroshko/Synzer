@@ -1,10 +1,9 @@
 var context = new global.AudioContext();
-var approaches = 128;
-var real = new global.Float32Array(approaches);
-var imag = new global.Float32Array(approaches);
+var steps = 128;
+var real = new global.Float32Array(steps);
+var imag = new global.Float32Array(steps);
 
-real[0] = 0.5;
-for (var i = 1; i < approaches; i++) {
+for (var i = 1; i < steps; i++) {
     imag[i] = 1 / (i * Math.PI);
 }
 
