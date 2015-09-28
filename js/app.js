@@ -98,7 +98,7 @@ controls.on('adsr-r-change', function(value) {
 controls.activate();
 
 var keyboard = new Keyboard(document.querySelector('.keyboard'));
-keyboard.draw(60, 84);
+keyboard.draw(48, 84);
 keyboard.startMouseListening();
 
 keyboard.on('notePressed', function(note) {

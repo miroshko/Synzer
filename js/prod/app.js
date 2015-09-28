@@ -171,7 +171,7 @@ module.exports = Note;
 function SineModulator (options) {
   options = options || {};
   this._frequency = options.frequency || 0;
-  this._xOffset = 0;
+  this._phaseOffset = 0;
   this._startedAt = 0;
   this._interval = null;
   this._prevValue = 0;
@@ -181,7 +181,9 @@ function SineModulator (options) {
     set: function (frequency) {
       // the offset is needed in order to have seamless
       // transition between different frequencies
-      this._xOffset = this._nowToX();
+      frequency = parseFloat(frequency);
+      this._phaseOffset = this._phaseNow();
+      this._startedAt = Date.now();
       this._frequency = frequency;
     },
     get: function() {
@@ -189,10 +191,6 @@ function SineModulator (options) {
     }
   });
 }
-
-SineModulator.prototype._nowToX = function(time) {
-  return (Date.now() - this._startedAt) / 1000 * this.frequency * 2 * Math.PI
-};
 
 SineModulator.prototype.modulate = function(object, property) {
   this._objToModulate = object;
@@ -207,12 +205,18 @@ SineModulator.prototype.start = function() {
     var diff = value - this_._prevValue;
     this_._objToModulate[this_._propertyToModulate] += diff;
     this_._prevValue = value;
-  }, 25);
+  }, 10);
 };
 
-SineModulator.prototype._modValueNow = function(time) {
-  // 1 dB = 125,89%
-  return Math.sin(this._nowToX() - this._xOffset) * this.depth;
+SineModulator.prototype._phaseNow = function() {
+  var timeDiff = (Date.now() - this._startedAt) / 1000;
+  var phase = this._phaseOffset + timeDiff * this.frequency % 1;
+  return phase;
+};
+
+SineModulator.prototype._modValueNow = function() {
+  var phase = this._phaseNow();
+  return Math.sin((phase) * 2 * Math.PI) * this.depth;
 };
 
 SineModulator.prototype.stop = function() {
@@ -309,6 +313,11 @@ controls.on('tremolo-freq-change', function(value) {
 
 controls.on('vibrato-on-change', function(value) {
   parseInt(value) ? vibrato.start() : vibrato.stop();
+  vibrato2 = new SineModulator
+  vibrato2.modulate(vibrato, 'frequency')
+  vibrato2.frequency = 0.2
+  vibrato2.depth = 3
+  vibrato2.start();
 });
 
 controls.on('vibrato-depth-change', function(value) {
@@ -358,7 +367,7 @@ controls.on('adsr-r-change', function(value) {
 controls.activate();
 
 var keyboard = new Keyboard(document.querySelector('.keyboard'));
-keyboard.draw(60, 84);
+keyboard.draw(48, 84);
 keyboard.startMouseListening();
 
 keyboard.on('notePressed', function(note) {
@@ -368,7 +377,6 @@ keyboard.on('notePressed', function(note) {
 keyboard.on('noteReleased', function(note) {
   synth.stop(note);
 });
-
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./Controls":1,"./Keyboard":2,"./SineModulator":5,"./Synth":6,"./effects/Delay":8}],8:[function(require,module,exports){
 function Delay(audioCtx) {
