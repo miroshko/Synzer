@@ -1,7 +1,11 @@
 Build:
 
-′npm run-script build′
+`npm run-script build`
 
 Test:
 
-′npm test′
+`npm test`
+
+Demo:
+
+http://miroshko.github.io/synzer
