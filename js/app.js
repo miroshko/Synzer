@@ -3,6 +3,7 @@ var Controls = require('./Controls');
 var Synth = require('./Synth');
 var Delay = require('./effects/Delay');
 var SineModulator = require('./SineModulator');
+var Modulator = require('./Modulator');
 
 var audioCtx = new global.AudioContext();
 var synth = new Synth(audioCtx);
@@ -15,8 +16,10 @@ volume.connect(delay.input);
 delay.connect(pan);
 pan.connect(audioCtx.destination);
 
-var tremolo = new SineModulator();
-tremolo.modulate(volume.gain, 'value');
+var tremolo = new Modulator(audioCtx);
+tremolo.connect(volume.gain);
+tremolo.oscillator.frequency.value = 1;
+tremolo.oscillator.start();
 
 var vibrato = new SineModulator();
 vibrato.modulate(synth, 'pitchShift');
@@ -36,15 +39,16 @@ controls.on('pan-change', function(value) {
 });
 
 controls.on('tremolo-on-change', function(value) {
-  parseInt(value) ? tremolo.start() : tremolo.stop();
+  // console.log(tremolo.oscillator)
+  // parseInt(value) ? tremolo.oscillator.start() : tremolo.oscillator.stop();
 });
 
 controls.on('tremolo-depth-change', function(value) {
-  tremolo.depth = value;
+  tremolo.gain.value = value;
 });
 
 controls.on('tremolo-freq-change', function(value) {
-  tremolo.frequency = value;
+  // tremolo.oscillator.frequency.value = value;
 });
 
 controls.on('vibrato-on-change', function(value) {
