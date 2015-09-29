@@ -33,10 +33,15 @@ function Keyboard(el) {
   this.el = el;
   this._keysPressed = {};
   MediatorMixin.call(this);
+
+  this._onKeyEvent = this._onKeyEvent.bind(this);
 }
 
 Keyboard.prototype.draw = function(lowestNote, highestNote) {
   var key;
+  this._lowestNote = lowestNote;
+  this._highestNote = highestNote;
+
   for(var i = lowestNote; i < highestNote; i++) {
     key = document.createElement('div');
     key.dataset.pitch = i;
@@ -92,6 +97,23 @@ Keyboard.prototype.startMouseListening = function() {
     }
     this_._mouseDown = false;
   });
+};
+
+Keyboard.prototype._onKeyEvent = function(e) {
+  var keysAvailable = [
+    81, 50, 87, 51, 69, 82, 53, 84, 54, 90, 55, 85,
+    73, 57, 79, 48, 80, 186, 65, 89, 83, 88, 68, 67,
+    86, 71, 66, 72, 78, 77, 75, 188, 76, 190, 192, 189
+  ];
+
+  var index = keysAvailable.indexOf(e.which);
+  var pitch = this._lowestNote - this._lowestNote % 12 + index;
+  this.emit({keydown: 'notePressed', keyup: 'noteReleased'}[e.type], new Note(pitch));
+};
+
+Keyboard.prototype.startKeyboardListening = function() {
+  window.addEventListener('keydown', this._onKeyEvent);
+  window.addEventListener('keyup', this._onKeyEvent);
 };
 
 Keyboard.prototype.on = function(eventName, callback) {
@@ -364,6 +386,7 @@ controls.activate();
 var keyboard = new Keyboard(document.querySelector('.keyboard'));
 keyboard.draw(48, 84);
 keyboard.startMouseListening();
+keyboard.startKeyboardListening();
 
 keyboard.on('notePressed', function(note) {
   synth.play(note);
@@ -392,7 +415,7 @@ function Delay(audioCtx) {
       this._applyParams();
     },
     get: function() {
-      return this._latency;
+      return this._feedback;
     }
   });
 

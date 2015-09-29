@@ -100,6 +100,7 @@ controls.activate();
 var keyboard = new Keyboard(document.querySelector('.keyboard'));
 keyboard.draw(48, 84);
 keyboard.startMouseListening();
+keyboard.startKeyboardListening();
 
 keyboard.on('notePressed', function(note) {
   synth.play(note);
