@@ -16,7 +16,7 @@ function Delay(audioCtx) {
       this._applyParams();
     },
     get: function() {
-      return this._latency;
+      return this._feedback;
     }
   });
 
