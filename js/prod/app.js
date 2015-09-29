@@ -313,11 +313,6 @@ controls.on('tremolo-freq-change', function(value) {
 
 controls.on('vibrato-on-change', function(value) {
   parseInt(value) ? vibrato.start() : vibrato.stop();
-  vibrato2 = new SineModulator
-  vibrato2.modulate(vibrato, 'frequency')
-  vibrato2.frequency = 0.2
-  vibrato2.depth = 3
-  vibrato2.start();
 });
 
 controls.on('vibrato-depth-change', function(value) {
