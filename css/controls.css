@@ -73,3 +73,22 @@
 h1, h2, h3 {
   margin: 0;
 }
+
+/* hide outline on focus */
+input[type=text]:focus,
+input[type=number]:focus {
+  outline: none;
+}
+
+/* hide radio input, not for wave-form inputs, yet */
+label:not(.wave-form) input[type=radio] {
+  opacity: 0; /* display:none breaks all */
+}
+
+label span {
+  cursor: pointer;
+}
+
+label:not(.wave-form) input[type=radio]:checked + span {
+  font-weight: bold;
+}
