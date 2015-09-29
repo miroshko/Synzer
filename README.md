@@ -8,4 +8,4 @@ Test:
 
 Demo:
 
-http://miroshko.github.io/synzer
+http://miroshko.github.io/Synzer
