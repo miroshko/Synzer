@@ -103,6 +103,7 @@ keyboard.startMouseListening();
 keyboard.startKeyboardListening();
 
 keyboard.on('notePressed', function(note) {
+  console.log( note )
   synth.play(note);
 });
 

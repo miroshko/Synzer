@@ -13,6 +13,7 @@ Keyboard.prototype.draw = function(lowestNote, highestNote) {
   var key;
   this._lowestNote = lowestNote;
   this._highestNote = highestNote;
+  this._keysBeingPressed = {};
 
   for(var i = lowestNote; i < highestNote; i++) {
     key = document.createElement('div');
@@ -80,7 +81,19 @@ Keyboard.prototype._onKeyEvent = function(e) {
 
   var index = keysAvailable.indexOf(e.which);
   var pitch = this._lowestNote - this._lowestNote % 12 + index;
-  this.emit({keydown: 'notePressed', keyup: 'noteReleased'}[e.type], new Note(pitch));
+  var eventToEmit = null;
+  if (e.type == 'keydown' && !this._keysBeingPressed[pitch]) {
+    this._keysBeingPressed[pitch] = true;
+    eventToEmit = 'notePressed';
+  }
+  if (e.type == 'keyup') {
+    this._keysBeingPressed[pitch] = false;
+    eventToEmit = 'noteReleased';
+  }
+  if (eventToEmit) {
+    var note = new Note(pitch);
+    this.emit(eventToEmit, note);
+  }
 };
 
 Keyboard.prototype.startKeyboardListening = function() {
