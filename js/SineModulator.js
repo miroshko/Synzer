@@ -7,7 +7,7 @@ function SineModulator (options) {
   this._prevValue = 0;
   this.depth = options.depth || 0;
 
-  Object.defineProperty(this, "frequency", { 
+  Object.defineProperty(this, "frequency", {
     set: function (frequency) {
       // the offset is needed in order to have seamless
       // transition between different frequencies
@@ -25,6 +25,7 @@ function SineModulator (options) {
 SineModulator.prototype.modulate = function(object, property) {
   this._objToModulate = object;
   this._propertyToModulate = property;
+  return this;
 };
 
 SineModulator.prototype.start = function() {

@@ -4,7 +4,7 @@ describe('Sine Modulator', function() {
   var sineModulator;
   var modulatedObj;
   var prevVal;
-  
+
   beforeEach(function() {
     modulatedObj = {
       param1: 100
@@ -25,6 +25,10 @@ describe('Sine Modulator', function() {
 
   afterEach(function() {
     jasmine.clock().uninstall();
+  });
+
+  it('modulate returns the object', function() {
+    expect(sineModulator.modulate(modulatedObj, 'param1')).toBe(sineModulator);
   });
 
   it('starts modulating', function() {

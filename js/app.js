@@ -15,12 +15,8 @@ volume.connect(delay.input);
 delay.connect(pan);
 pan.connect(audioCtx.destination);
 
-var tremolo = new SineModulator();
-tremolo.modulate(volume.gain, 'value');
-
-var vibrato = new SineModulator();
-vibrato.modulate(synth, 'pitchShift');
-
+var tremolo = new SineModulator().modulate(volume.gain, 'value');
+var vibrato = new SineModulator().modulate(synth, 'pitchShift');
 var controls = new Controls(document.querySelector('.controls'));
 
 controls.on('wave-form-change', function(type) {

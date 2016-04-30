@@ -85,7 +85,7 @@ describe('synthMixins', function() {
     });
   });
 
-  describe('ADSR', function (argument) {
+  describe('ADSR', function () {
     beforeEach(function() {
       ADSR.call(synth);
       synth.ADSR.A = 100;
@@ -176,4 +176,3 @@ describe('synthMixins', function() {
     });
   })
 });
-
