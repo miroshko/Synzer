@@ -25,7 +25,7 @@ Controls.prototype.activate = function() {
 }
 
 module.exports = Controls;
-},{"../tpl/controls.html":16,"./MediatorMixin":4}],2:[function(require,module,exports){
+},{"../tpl/controls.html":17,"./MediatorMixin":4}],2:[function(require,module,exports){
 var Note = require('./Note');
 var MediatorMixin = require('./MediatorMixin');
 
@@ -103,7 +103,7 @@ Keyboard.prototype.startMouseListening = function() {
 
 module.exports = Keyboard;
 
-},{"./MediatorMixin":4,"./Note":5}],3:[function(require,module,exports){
+},{"./MediatorMixin":4,"./Note":6}],3:[function(require,module,exports){
 (function (global){
 var MediatorMixin = require('./MediatorMixin');
 
@@ -199,6 +199,37 @@ function MediatorMixin() {
 
 module.exports = MediatorMixin;
 },{}],5:[function(require,module,exports){
+var MediatorMixin = require('./MediatorMixin');
+
+MidiListener.prototype._emitMidiMessage = function(event) {
+  var eventName = {
+    148: 'keyPressed',
+    132: 'keyReleased'
+  }[event.data[0]];
+  this.emit(eventName, event.data[1]);
+};
+
+function MidiListener () {
+  MediatorMixin.call(this);
+
+  if (window.navigator.requestMIDIAccess) {
+    window.navigator.requestMIDIAccess({sysex:false})
+      .then((midiAccess) => {
+        var midiInputs = midiAccess.inputs.values();
+        var input = midiInputs.next();
+        do {
+          input.value.onmidimessage = (event) => this._emitMidiMessage(event);
+          input = midiInputs.next();
+        } while(!input.done)
+      }, () => console.log('Failed to get access to the MIDI device'));
+  } else {
+    console.log('MIDI API is not available in the browser');
+  }
+}
+
+module.exports = MidiListener;
+
+},{"./MediatorMixin":4}],6:[function(require,module,exports){
 function Note(letterWithOctaveOrPitch) {
   if (!this._parsePitch(letterWithOctaveOrPitch) && !this._parseLetter(letterWithOctaveOrPitch)) {
     throw new Error('Can not parse ' + letterWithOctaveOrPitch);
@@ -236,7 +267,7 @@ Note.prototype._freq = function(pitch) {
 };
 
 module.exports = Note;
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 function SineModulator (options) {
   options = options || {};
   this._frequency = options.frequency || 0;
@@ -295,7 +326,7 @@ SineModulator.prototype.stop = function() {
 
 module.exports = SineModulator;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 var WaveForm = require('./synthMixins/WaveForm')
 var PitchShifter = require('./synthMixins/PitchShifter')
 var ADSR = require('./synthMixins/ADSR')
@@ -338,10 +369,11 @@ Synth.prototype.connect = function(output) {
 
 module.exports = Synth;
 
-},{"./synthMixins/ADSR":10,"./synthMixins/PitchShifter":11,"./synthMixins/WaveForm":12}],8:[function(require,module,exports){
+},{"./synthMixins/ADSR":11,"./synthMixins/PitchShifter":12,"./synthMixins/WaveForm":13}],9:[function(require,module,exports){
 (function (global){
 var ScreenKeyboard = require('./Keyboard');
 var KeyboardListener = require('./KeyboardListener');
+var MidiListener = require('./MidiListener');
 var Controls = require('./Controls');
 var Synth = require('./Synth');
 var Delay = require('./effects/Delay');
@@ -449,11 +481,15 @@ screenKeyboard.on('noteReleased', function(note) {
 });
 
 var keyboardListener = new KeyboardListener({startNote: 48, endNote: 83});
-keyboardListener.on('keyPressed', (pitch) => screenKeyboard.press(pitch))
-keyboardListener.on('keyReleased', (pitch) => screenKeyboard.release(pitch))
+keyboardListener.on('keyPressed', (pitch) => screenKeyboard.press(pitch));
+keyboardListener.on('keyReleased', (pitch) => screenKeyboard.release(pitch));
+
+var midiListener = new MidiListener({startNote: 48, endNote: 83});
+midiListener.on('keyPressed', (pitch) => screenKeyboard.press(pitch));
+midiListener.on('keyReleased', (pitch) => screenKeyboard.release(pitch));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./Controls":1,"./Keyboard":2,"./KeyboardListener":3,"./SineModulator":6,"./Synth":7,"./effects/Delay":9}],9:[function(require,module,exports){
+},{"./Controls":1,"./Keyboard":2,"./KeyboardListener":3,"./MidiListener":5,"./SineModulator":7,"./Synth":8,"./effects/Delay":10}],10:[function(require,module,exports){
 function Delay(audioCtx) {
   this._audioCtx = audioCtx;
   this.input = audioCtx.createGain();
@@ -551,7 +587,7 @@ Delay.prototype.connect = function(target) {
 
 module.exports = Delay;
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 function ADSR() {
   this.ADSR = {
     A: null,
@@ -639,7 +675,7 @@ function ADSR() {
 
 module.exports = ADSR;
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 function PitchShifter() {
   this._pitchShift = 0;
   var oscillators = {};
@@ -677,7 +713,7 @@ function PitchShifter() {
 }
 
 module.exports = PitchShifter;
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 var sawtooth = require('../waveforms/sawtooth');
 var square = require('../waveforms/square');
 var sine = require('../waveforms/sine');
@@ -713,7 +749,7 @@ function WaveForm() {
 }
 
 module.exports = WaveForm;
-},{"../waveforms/sawtooth":13,"../waveforms/sine":14,"../waveforms/square":15}],13:[function(require,module,exports){
+},{"../waveforms/sawtooth":14,"../waveforms/sine":15,"../waveforms/square":16}],14:[function(require,module,exports){
 (function (global){
 var context = new global.AudioContext();
 var steps = 128;
@@ -729,7 +765,7 @@ var wave = context.createPeriodicWave(real, imag);
 module.exports = wave;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 (function (global){
 var context = new global.AudioContext();
 var realCoeffs = new global.Float32Array([0,0]);
@@ -738,7 +774,7 @@ var wave = context.createPeriodicWave(realCoeffs, imagCoeffs);
 
 module.exports = wave;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 (function (global){
 var context = new global.AudioContext();
 var approaches = 128;
@@ -755,7 +791,7 @@ var wave = context.createPeriodicWave(real, imag);
 module.exports = wave;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 module.exports = "<link rel=\"stylesheet\" href=\"css/controls.css\">\n\n<div class=\"col3-container\">\n  <h3>Tremolo</h3>\n  <label>\n    <input type=\"radio\" name=\"tremolo-on\" value=\"1\"><span>ON</span>\n  </label>\n  <label>\n    <input type=\"radio\" type=\"radio\" name=\"tremolo-on\" value=\"0\" checked=\"true\"><span>OFF</span>\n  </label>\n  <label class=\"osc1-depth\">\n    <span>Depth</span>\n    <input type=\"number\" name=\"tremolo-depth\" value=\"0.2\" step=\"0.1\" max=\"1000\" min=\"0\">\n  </label>\n  <label class=\"osc1-length\">\n    <span>Freq</span>\n    <input type=\"number\" name=\"tremolo-freq\" value=\"2\">\n  </label>\n</div>\n\n<div class=\"col3-container\">\n  <h3>Vibrato</h3>\n  <label>\n    <input type=\"radio\" name=\"vibrato-on\" value=\"1\"><span>ON</span>\n  </label>\n  <label>\n    <input type=\"radio\" type=\"radio\" name=\"vibrato-on\" value=\"0\" checked=\"true\"><span>OFF</span>\n  </label>\n  <label class=\"osc1-length\">\n    <span>Cent</span>\n    <input type=\"number\" name=\"vibrato-depth\" min=\"\" step=\"10\" max=\"200\" value=\"50\">\n  </label>\n  <label class=\"osc1-depth\">\n    <span>Freq</span>\n    <input type=\"number\" name=\"vibrato-freq\" value=\"5\" max=\"20\" min=\"0\">\n  </label>\n</div>\n\n<div class=\"col3-container\">\n  <h3>Delay</h3>\n  <label>\n    <input type=\"radio\" name=\"delay-on\" value=\"1\"><span>ON</span>\n  </label>\n  <label>\n    <input type=\"radio\" type=\"radio\" name=\"delay-on\" value=\"0\" checked=\"true\"><span>OFF</span>\n  </label>\n  <label class=\"delay-taps\">\n    <span>Taps</span>\n    <input type=\"number\" name=\"delay-taps\" value=\"2\" max=\"10\" min=\"0\">\n  </label>\n  <label class=\"delay-feedback\">\n    <span>Feedback</span>\n    <input type=\"number\" name=\"delay-feedback\" value=\"0.7\" max=\"2\" min=\"0\" step=\"0.1\">\n  </label>\n  <label class=\"delay-freq\">\n    <span>Latency</span>\n    <input type=\"number\" name=\"delay-latency\" value=\"400\" step=\"10\" min=\"0\" max=\"5000\">\n  </label>\n</div>\n\n<div class=\"col5-container adsr-container\">\n  <h3>ADSR envelope</h3>\n  <div class=\"col2-container\">\n    <label class=\"ADSR-A\">\n      <span>A</span>\n      <input type=\"number\" name=\"adsr-a\" value=\"50\" max=\"1000\" step=\"10\">\n    </label><br>\n    <label class=\"ADSR-D\">\n      <span>D</span>\n      <input type=\"number\" name=\"adsr-d\" value=\"50\" min=\"0\" max=\"5000\" step=\"50\">\n    </label><br>\n    <label class=\"ADSR-S\">\n      <span>S</span>\n      <input type=\"number\" name=\"adsr-s\" value=\"0.7\" min=\"0\" max=\"1\" step=\"0.1\">\n    </label><br>\n    <label class=\"ADSR-R\">\n      <span>R</span>\n      <input type=\"number\" name=\"adsr-r\" value=\"300\" min=\"0\" max=\"5000\" step=\"100\">\n    </label><br>\n  </div>\n  <img src=\"img/adsr.png\" class=\"adsr-image\" alt=\"ADSR\">\n</div>\n\n<div class=\"volume-pan-container col3-container\">\n  <label class=\"volume\">\n    <span>Volume</span>\n    <input class=\"volume\" name=\"volume\" value=\"0.5\" min=\"0\" max=\"1\" step=\"0.1\" type=\"number\">\n  </label>\n  <label class=\"pan\">\n    <span>Pan</span>\n    <input class=\"volume\" name=\"pan\" value=\"0\" min=\"-1\" max=\"1\" step=\"0.1\" type=\"number\">\n  </label>\n</div>\n\n<div class=\"wave-form-container col6-container\">\n  <label class=\"wave-form sine\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"sine\" checked>\n  </label>\n  <label class=\"wave-form sawtooth\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"sawtooth\">\n  </label>\n  <label class=\"wave-form square\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"square\">\n  </label>\n</div>\n";
 
-},{}]},{},[8]);
+},{}]},{},[9]);

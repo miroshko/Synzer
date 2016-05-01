@@ -1,5 +1,6 @@
 var ScreenKeyboard = require('./Keyboard');
 var KeyboardListener = require('./KeyboardListener');
+var MidiListener = require('./MidiListener');
 var Controls = require('./Controls');
 var Synth = require('./Synth');
 var Delay = require('./effects/Delay');
@@ -107,5 +108,9 @@ screenKeyboard.on('noteReleased', function(note) {
 });
 
 var keyboardListener = new KeyboardListener({startNote: 48, endNote: 83});
-keyboardListener.on('keyPressed', (pitch) => screenKeyboard.press(pitch))
-keyboardListener.on('keyReleased', (pitch) => screenKeyboard.release(pitch))
+keyboardListener.on('keyPressed', (pitch) => screenKeyboard.press(pitch));
+keyboardListener.on('keyReleased', (pitch) => screenKeyboard.release(pitch));
+
+var midiListener = new MidiListener({startNote: 48, endNote: 83});
+midiListener.on('keyPressed', (pitch) => screenKeyboard.press(pitch));
+midiListener.on('keyReleased', (pitch) => screenKeyboard.release(pitch));
