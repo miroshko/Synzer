@@ -9,7 +9,7 @@ describe('Synth', function() {
   var synth, gainNode, oscillator, audioContext, aNote = {pitch: 81, frequency: 440}, aNote2 = {pitch: 93, frequency: 880};
 
   beforeEach(function() {
-    oscillator = jasmine.createSpyObj('oscillator', ['setPeriodicWave', 'connect', 'start', 'stop']);
+    oscillator = jasmine.createSpyObj('oscillator', ['setPeriodicWave', 'connect', 'disconnect', 'start', 'stop']);
     oscillator.frequency = {};
     gainNode = jasmine.createSpyObj('gainNode', ['connect']);
     gainNode.gain = {};

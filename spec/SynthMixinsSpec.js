@@ -9,7 +9,7 @@ var PitchShifter = require('../js/synthMixins/PitchShifter');
 var ADSR = require('../js/synthMixins/ADSR');
 
 describe('synthMixins', function() {
-  var oscillator, audioContext, note;
+  var oscillator, audioContext, note, note2;
   beforeEach(function() {
     oscillator = jasmine.createSpyObj('oscillator', ['setPeriodicWave', 'connect', 'disconnect', 'start', 'stop']);
     oscillator.frequency = {};
@@ -32,7 +32,8 @@ describe('synthMixins', function() {
       },
       stop: function() {}
     };
-    note = {pitch:44, frequency:100}
+    note = {pitch:44, frequency:100};
+    note2 = {pitch:46, frequency:121};
   });
 
   describe("WaveForm", function() {
@@ -174,5 +175,48 @@ describe('synthMixins', function() {
       jasmine.clock().tick(300);
       expect(gainNode.gain.value).toBeCloseTo(0);
     });
-  })
+
+    it('Starting a new note during the R phase cancels R', function() {
+      synth.ADSR.A = 100;
+      synth.ADSR.D = 100;
+      synth.ADSR.S = 0.6;
+      synth.ADSR.R = 600;
+      synth.play(note);
+      jasmine.clock().tick(300);
+      synth.stop(note);
+      jasmine.clock().tick(300);
+      synth.play(note);
+      jasmine.clock().tick(50);
+      expect(gainNode.gain.value).toBeCloseTo(0.65);
+      jasmine.clock().tick(50);
+      expect(gainNode.gain.value).toBeCloseTo(1);
+    });
+
+    it('Plays second note as expected when first if completely finished', function() {
+      synth.ADSR.A = 100;
+      synth.ADSR.D = 100;
+      synth.ADSR.S = 0.6;
+      synth.ADSR.R = 600;
+      synth.play(note);
+      jasmine.clock().tick(500);
+      synth.stop(note);
+      jasmine.clock().tick(800);
+      synth.play(note);
+      jasmine.clock().tick(50);
+      expect(gainNode.gain.value).toBeCloseTo(0.5);
+      jasmine.clock().tick(50);
+      expect(gainNode.gain.value).toBeCloseTo(1);
+      jasmine.clock().tick(50);
+      expect(gainNode.gain.value).toBeCloseTo(0.8);
+      jasmine.clock().tick(50);
+      expect(gainNode.gain.value).toBeCloseTo(0.6);
+      jasmine.clock().tick(50);
+      expect(gainNode.gain.value).toBeCloseTo(0.6);
+      synth.stop(note);
+      jasmine.clock().tick(300);
+      expect(gainNode.gain.value).toBeCloseTo(0.3);
+      jasmine.clock().tick(300);
+      expect(gainNode.gain.value).toBeCloseTo(0);
+    });
+  });
 });

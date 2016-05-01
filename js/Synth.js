@@ -5,7 +5,7 @@ var ADSR = require('./synthMixins/ADSR')
 function Synth(context) {
   this.audioContext = context;
   this.output = context.createGain();
-  
+
   this._oscillators = {};
 
   WaveForm.apply(this, arguments);
@@ -16,6 +16,11 @@ function Synth(context) {
 Synth.prototype.play = function(note) {
   var oscillator;
 
+  oscillator = this._oscillators[note.pitch];
+  if (oscillator) {
+    this.stop(note);
+  }
+
   oscillator = this._oscillators[note.pitch] = this.audioContext.createOscillator();
   oscillator.frequency.value = note.frequency;
   oscillator.connect(this.output);
@@ -24,7 +29,9 @@ Synth.prototype.play = function(note) {
 };
 
 Synth.prototype.stop = function(note) {
+  this._oscillators[note.pitch].disconnect(this.output);
   this._oscillators[note.pitch].stop(0);
+  delete this._oscillators[note.pitch];
 };
 
 Synth.prototype.connect = function(output) {

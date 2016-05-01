@@ -1,4 +1,5 @@
-var Keyboard = require('./Keyboard');
+var ScreenKeyboard = require('./Keyboard');
+var KeyboardListener = require('./KeyboardListener');
 var Controls = require('./Controls');
 var Synth = require('./Synth');
 var Delay = require('./effects/Delay');
@@ -93,14 +94,18 @@ controls.on('adsr-r-change', function(value) {
 
 controls.activate();
 
-var keyboard = new Keyboard(document.querySelector('.keyboard'));
-keyboard.draw(48, 84);
-keyboard.startMouseListening();
+var screenKeyboard = new ScreenKeyboard(document.querySelector('.keyboard'));
+screenKeyboard.draw(48, 83);
+screenKeyboard.startMouseListening();
 
-keyboard.on('notePressed', function(note) {
+screenKeyboard.on('notePressed', function(note) {
   synth.play(note);
 });
 
-keyboard.on('noteReleased', function(note) {
+screenKeyboard.on('noteReleased', function(note) {
   synth.stop(note);
 });
+
+var keyboardListener = new KeyboardListener({startNote: 48, endNote: 83});
+keyboardListener.on('keyPressed', (pitch) => screenKeyboard.press(pitch))
+keyboardListener.on('keyReleased', (pitch) => screenKeyboard.release(pitch))

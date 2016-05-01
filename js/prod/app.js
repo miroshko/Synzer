@@ -25,7 +25,7 @@ Controls.prototype.activate = function() {
 }
 
 module.exports = Controls;
-},{"../tpl/controls.html":15,"./MediatorMixin":3}],2:[function(require,module,exports){
+},{"../tpl/controls.html":16,"./MediatorMixin":4}],2:[function(require,module,exports){
 var Note = require('./Note');
 var MediatorMixin = require('./MediatorMixin');
 
@@ -37,8 +37,9 @@ function Keyboard(el) {
 
 Keyboard.prototype.draw = function(lowestNote, highestNote) {
   var key;
-  for(var i = lowestNote; i < highestNote; i++) {
-    key = document.createElement('div');
+  this._keyEls = {};
+  for(var i = lowestNote; i <= highestNote; i++) {
+    this._keyEls[i] = key = document.createElement('div');
     key.dataset.pitch = i;
     key.classList.add('key');
     if (['C#', 'D#', 'F#', 'G#', 'B'].indexOf(new Note(i).letter) > -1) {
@@ -48,68 +49,136 @@ Keyboard.prototype.draw = function(lowestNote, highestNote) {
   }
 };
 
+Keyboard.prototype.press = function(pitch) {
+  var el = this._keyEls[pitch];
+  el.classList.add('pressed');
+  this.emit('notePressed', new Note(el.dataset.pitch));
+};
+
+Keyboard.prototype.release = function(pitch) {
+  var el = this._keyEls[pitch];
+  el.classList.remove('pressed');
+  this.emit('noteReleased', new Note(el.dataset.pitch));
+};
+
 Keyboard.prototype.startMouseListening = function() {
-  var this_ = this;
-
-  function pressed(el) {
-    if (!el.classList.contains('key'))
+  this.el.addEventListener('mousedown', (e) => {
+    if (!e.target.classList.contains('key'))
       return;
-    el.classList.add('pressed');
-    this_.emit('notePressed', new Note(el.dataset.pitch));
-  }
+    this._mouseDown = true;
+    this.press(e.target.dataset.pitch);
+  });
 
-  function released(el) {
-    if (!el.classList.contains('key'))
+  this.el.addEventListener('mouseover', (e) => {
+    if (!e.target.classList.contains('key'))
       return;
-    el.classList.remove('pressed');
-    this_.emit('noteReleased', new Note(el.dataset.pitch));
-  }
-
-  this.el.addEventListener('mousedown', function(e) {
-    this_._mouseDown = true;
-    pressed(e.target);
-  });
-
-  this.el.addEventListener('mouseover', function(e) {
-    if (this_._mouseDown) {
-      pressed(e.target);
+    if (this._mouseDown) {
+      this.press(e.target.dataset.pitch);
     }
   });
 
-  this.el.addEventListener('mouseleave', function(e) {
-    this_._mouseDown = false;
+  this.el.addEventListener('mouseleave', (e) => {
+    if (!e.target.classList.contains('key'))
+      return;
+    this._mouseDown = false;
   });
 
-  this.el.addEventListener('mouseout', function(e) {
-    if (this_._mouseDown) {
-      released(e.target);
+  this.el.addEventListener('mouseout', (e) => {
+    if (!e.target.classList.contains('key'))
+      return;
+    if (this._mouseDown) {
+      this.release(e.target.dataset.pitch);
     }
   });
 
-  this.el.addEventListener('mouseup', function(e) {
-    if (this_._mouseDown) {
-      released(e.target);
+  this.el.addEventListener('mouseup', (e) => {
+    if (!e.target.classList.contains('key'))
+      return;
+    if (this._mouseDown) {
+      this.release(e.target.dataset.pitch);
     }
-    this_._mouseDown = false;
-  });
-};
-
-Keyboard.prototype.on = function(eventName, callback) {
-  this._events[eventName] = this._events[eventName] || [];
-  this._events[eventName].push(callback);
-};
-
-Keyboard.prototype.emit = function(eventName) {
-  var args = Array.prototype.slice.call(arguments, 1);
-
-  this._events[eventName].forEach(function(callback) {
-    callback.apply(null, args);
+    this._mouseDown = false;
   });
 };
 
 module.exports = Keyboard;
 
-},{"./MediatorMixin":3,"./Note":4}],3:[function(require,module,exports){
+},{"./MediatorMixin":4,"./Note":5}],3:[function(require,module,exports){
+(function (global){
+var MediatorMixin = require('./MediatorMixin');
+
+const KEYCODE_TO_PITCH_MAP = {
+  81: 48,
+  50: 49,
+  87: 50,
+  51: 51,
+  69: 52,
+  82: 53,
+  53: 54,
+  84: 55,
+  54: 56,
+  90: 57,
+  55: 58,
+  85: 59,
+  73: 60,
+  57: 61,
+  79: 62,
+  48: 63,
+  80: 64,
+  186: 65,
+  65: 66,
+  89: 67,
+  83: 68,
+  88: 69,
+  68: 70,
+  67: 71,
+  86: 72,
+  71: 73,
+  66: 74,
+  72: 75,
+  78: 76,
+  77: 77,
+  75: 78,
+  188: 79,
+  76: 80,
+  190: 81,
+  192: 82,
+  189: 83
+};
+
+KeyboardListener.prototype.KEYCODE_TO_PITCH_MAP;
+
+function KeyboardListener (options) {
+  options = Object.assign({}, options);
+  MediatorMixin.call(this);
+
+  if (!options.startNote || options.startNote < 48) {
+    throw new Error('startNote must be a number greater or equal than 48');
+  }
+
+  if (!options.endNote || options.endNote > 83) {
+    throw new Error('endNote must be a number less or equal than 83');
+  }
+
+  this._options = options;
+  this._buttonStatuses = {};
+
+  var emitPitch = (name) => (e) => {
+    var pitch = KEYCODE_TO_PITCH_MAP[e.keyCode];
+    if (pitch && pitch >= this._options.startNote && pitch <= this._options.endNote && this._buttonStatuses[pitch] != name) {
+      this.emit(name, pitch);
+    }
+    this._buttonStatuses[pitch] = name;
+  }
+
+  global.window.addEventListener('keydown', emitPitch('keyPressed'));
+  global.window.addEventListener('keyup', emitPitch('keyReleased'));
+}
+
+module.exports = KeyboardListener;
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./MediatorMixin":4}],4:[function(require,module,exports){
 function MediatorMixin() {
   this._events = {};
   this.on = function(eventName, callback) {
@@ -129,7 +198,7 @@ function MediatorMixin() {
 };
 
 module.exports = MediatorMixin;
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 function Note(letterWithOctaveOrPitch) {
   if (!this._parsePitch(letterWithOctaveOrPitch) && !this._parseLetter(letterWithOctaveOrPitch)) {
     throw new Error('Can not parse ' + letterWithOctaveOrPitch);
@@ -167,7 +236,7 @@ Note.prototype._freq = function(pitch) {
 };
 
 module.exports = Note;
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 function SineModulator (options) {
   options = options || {};
   this._frequency = options.frequency || 0;
@@ -177,7 +246,7 @@ function SineModulator (options) {
   this._prevValue = 0;
   this.depth = options.depth || 0;
 
-  Object.defineProperty(this, "frequency", { 
+  Object.defineProperty(this, "frequency", {
     set: function (frequency) {
       // the offset is needed in order to have seamless
       // transition between different frequencies
@@ -195,6 +264,7 @@ function SineModulator (options) {
 SineModulator.prototype.modulate = function(object, property) {
   this._objToModulate = object;
   this._propertyToModulate = property;
+  return this;
 };
 
 SineModulator.prototype.start = function() {
@@ -225,7 +295,7 @@ SineModulator.prototype.stop = function() {
 
 module.exports = SineModulator;
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 var WaveForm = require('./synthMixins/WaveForm')
 var PitchShifter = require('./synthMixins/PitchShifter')
 var ADSR = require('./synthMixins/ADSR')
@@ -233,7 +303,7 @@ var ADSR = require('./synthMixins/ADSR')
 function Synth(context) {
   this.audioContext = context;
   this.output = context.createGain();
-  
+
   this._oscillators = {};
 
   WaveForm.apply(this, arguments);
@@ -244,6 +314,11 @@ function Synth(context) {
 Synth.prototype.play = function(note) {
   var oscillator;
 
+  oscillator = this._oscillators[note.pitch];
+  if (oscillator) {
+    this.stop(note);
+  }
+
   oscillator = this._oscillators[note.pitch] = this.audioContext.createOscillator();
   oscillator.frequency.value = note.frequency;
   oscillator.connect(this.output);
@@ -252,7 +327,9 @@ Synth.prototype.play = function(note) {
 };
 
 Synth.prototype.stop = function(note) {
+  this._oscillators[note.pitch].disconnect(this.output);
   this._oscillators[note.pitch].stop(0);
+  delete this._oscillators[note.pitch];
 };
 
 Synth.prototype.connect = function(output) {
@@ -260,9 +337,11 @@ Synth.prototype.connect = function(output) {
 };
 
 module.exports = Synth;
-},{"./synthMixins/ADSR":9,"./synthMixins/PitchShifter":10,"./synthMixins/WaveForm":11}],7:[function(require,module,exports){
+
+},{"./synthMixins/ADSR":10,"./synthMixins/PitchShifter":11,"./synthMixins/WaveForm":12}],8:[function(require,module,exports){
 (function (global){
-var Keyboard = require('./Keyboard');
+var ScreenKeyboard = require('./Keyboard');
+var KeyboardListener = require('./KeyboardListener');
 var Controls = require('./Controls');
 var Synth = require('./Synth');
 var Delay = require('./effects/Delay');
@@ -279,12 +358,8 @@ volume.connect(delay.input);
 delay.connect(pan);
 pan.connect(audioCtx.destination);
 
-var tremolo = new SineModulator();
-tremolo.modulate(volume.gain, 'value');
-
-var vibrato = new SineModulator();
-vibrato.modulate(synth, 'pitchShift');
-
+var tremolo = new SineModulator().modulate(volume.gain, 'value');
+var vibrato = new SineModulator().modulate(synth, 'pitchShift');
 var controls = new Controls(document.querySelector('.controls'));
 
 controls.on('wave-form-change', function(type) {
@@ -361,19 +436,24 @@ controls.on('adsr-r-change', function(value) {
 
 controls.activate();
 
-var keyboard = new Keyboard(document.querySelector('.keyboard'));
-keyboard.draw(48, 84);
-keyboard.startMouseListening();
+var screenKeyboard = new ScreenKeyboard(document.querySelector('.keyboard'));
+screenKeyboard.draw(48, 83);
+screenKeyboard.startMouseListening();
 
-keyboard.on('notePressed', function(note) {
+screenKeyboard.on('notePressed', function(note) {
   synth.play(note);
 });
 
-keyboard.on('noteReleased', function(note) {
+screenKeyboard.on('noteReleased', function(note) {
   synth.stop(note);
 });
+
+var keyboardListener = new KeyboardListener({startNote: 48, endNote: 83});
+keyboardListener.on('keyPressed', (pitch) => screenKeyboard.press(pitch))
+keyboardListener.on('keyReleased', (pitch) => screenKeyboard.release(pitch))
+
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./Controls":1,"./Keyboard":2,"./SineModulator":5,"./Synth":6,"./effects/Delay":8}],8:[function(require,module,exports){
+},{"./Controls":1,"./Keyboard":2,"./KeyboardListener":3,"./SineModulator":6,"./Synth":7,"./effects/Delay":9}],9:[function(require,module,exports){
 function Delay(audioCtx) {
   this._audioCtx = audioCtx;
   this.input = audioCtx.createGain();
@@ -392,7 +472,7 @@ function Delay(audioCtx) {
       this._applyParams();
     },
     get: function() {
-      return this._latency;
+      return this._feedback;
     }
   });
 
@@ -471,7 +551,7 @@ Delay.prototype.connect = function(target) {
 
 module.exports = Delay;
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 function ADSR() {
   this.ADSR = {
     A: null,
@@ -482,6 +562,8 @@ function ADSR() {
 
   var oscillators = {};
   var gainNodes = {};
+  var asdIntervals = {};
+  var rIntervals = {};
 
   var old = {
     play: this.play,
@@ -489,61 +571,75 @@ function ADSR() {
   };
 
   this.play = function(note) {
+    var gain = gainNodes[note.pitch];
+    if (!gain) {
+      gain = gainNodes[note.pitch] = this.audioContext.createGain();
+      gain.connect(this.output);
+      gain.gain.value = 0;
+    }
+
+    var startedAt = Date.now();
+    var startedAtGain = gain.gain.value;
+
+    if (oscillators[note.pitch]) {
+      this._finalize(note);
+    }
+
     var osc = oscillators[note.pitch] = old.play.call(this, note);
-    var gain = gainNodes[note.pitch] = this.audioContext.createGain();
     osc.disconnect(this.output);
     osc.connect(gain);
-    gain.connect(this.output);
-    gain.gain.value = 0;
 
     this.ADSR.A = parseInt(this.ADSR.A);
     this.ADSR.D = parseInt(this.ADSR.D);
     this.ADSR.S = parseFloat(this.ADSR.S);
     this.ADSR.R = parseInt(this.ADSR.R);
 
-    var this_ = this;
-    var startedAt = Date.now();
-    var interval = setInterval(function() {
+    asdIntervals[note.pitch] = setInterval(() => {
       var diff = Date.now() - startedAt;
-      if (diff < this_.ADSR.A) {
-        gain.gain.value = diff / this_.ADSR.A;
-      } else if (diff < this_.ADSR.A + this_.ADSR.D) {
-        gain.gain.value = 1 - (diff - this_.ADSR.A) / (this_.ADSR.D / (1 - this_.ADSR.S));
+      if (diff < this.ADSR.A) {
+        gain.gain.value = startedAtGain + (1 - startedAtGain) * (diff / this.ADSR.A);
+      } else if (diff < this.ADSR.A + this.ADSR.D) {
+        gain.gain.value = 1 - (diff - this.ADSR.A) / (this.ADSR.D / (1 - this.ADSR.S));
       } else {
-        gain.gain.value = this_.ADSR.S;
-        clearInterval(interval);
+        gain.gain.value = this.ADSR.S;
+        clearInterval(asdIntervals[note.pitch]);
       }
     }, 10);
 
     return osc;
   };
 
+  this._finalize = function(note) {
+    var osc = oscillators[note.pitch];
+    var gain = gainNodes[note.pitch];
+    clearInterval(rIntervals[note.pitch]);
+    gain.gain.value = 0;
+    osc.disconnect(gain);
+    osc.connect(this.output);
+    delete oscillators[note.pitch];
+    old.stop.apply(this, arguments);
+  }
+
   this.stop = function(note) {
     var releasedAt = Date.now();
     var this_ = this;
     var arguments_ = arguments;
     var gain = gainNodes[note.pitch];
-    var osc = oscillators[note.pitch];
     var gainOnRelease = gain.gain.value;
-    var interval = setInterval(function() {
+    rIntervals[note.pitch] = setInterval(() => {
       var diff = Date.now() - releasedAt;
       if (diff < this_.ADSR.R) {
         gain.gain.value = gainOnRelease * (1 - diff / this_.ADSR.R);
       } else {
-        clearInterval(interval);
-        gain.gain.value = 0;
-        old.stop.apply(this_, arguments_);
-        osc.disconnect(gainNodes[note.pitch]);
-        gain.disconnect(this.output);
-        delete oscillators[note.pitch];
-        delete gain[note.pitch];
+        this._finalize(note);
       }
     }, 10);
   };
 }
 
 module.exports = ADSR;
-},{}],10:[function(require,module,exports){
+
+},{}],11:[function(require,module,exports){
 function PitchShifter() {
   this._pitchShift = 0;
   var oscillators = {};
@@ -581,7 +677,7 @@ function PitchShifter() {
 }
 
 module.exports = PitchShifter;
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 var sawtooth = require('../waveforms/sawtooth');
 var square = require('../waveforms/square');
 var sine = require('../waveforms/sine');
@@ -617,7 +713,7 @@ function WaveForm() {
 }
 
 module.exports = WaveForm;
-},{"../waveforms/sawtooth":12,"../waveforms/sine":13,"../waveforms/square":14}],12:[function(require,module,exports){
+},{"../waveforms/sawtooth":13,"../waveforms/sine":14,"../waveforms/square":15}],13:[function(require,module,exports){
 (function (global){
 var context = new global.AudioContext();
 var steps = 128;
@@ -633,7 +729,7 @@ var wave = context.createPeriodicWave(real, imag);
 module.exports = wave;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 (function (global){
 var context = new global.AudioContext();
 var realCoeffs = new global.Float32Array([0,0]);
@@ -642,7 +738,7 @@ var wave = context.createPeriodicWave(realCoeffs, imagCoeffs);
 
 module.exports = wave;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 (function (global){
 var context = new global.AudioContext();
 var approaches = 128;
@@ -659,7 +755,7 @@ var wave = context.createPeriodicWave(real, imag);
 module.exports = wave;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 module.exports = "<link rel=\"stylesheet\" href=\"css/controls.css\">\n\n<div class=\"col3-container\">\n  <h3>Tremolo</h3>\n  <label>\n    <input type=\"radio\" name=\"tremolo-on\" value=\"1\"><span>ON</span>\n  </label>\n  <label>\n    <input type=\"radio\" type=\"radio\" name=\"tremolo-on\" value=\"0\" checked=\"true\"><span>OFF</span>\n  </label>\n  <label class=\"osc1-depth\">\n    <span>Depth</span>\n    <input type=\"number\" name=\"tremolo-depth\" value=\"0.2\" step=\"0.1\" max=\"1000\" min=\"0\">\n  </label>\n  <label class=\"osc1-length\">\n    <span>Freq</span>\n    <input type=\"number\" name=\"tremolo-freq\" value=\"2\">\n  </label>\n</div>\n\n<div class=\"col3-container\">\n  <h3>Vibrato</h3>\n  <label>\n    <input type=\"radio\" name=\"vibrato-on\" value=\"1\"><span>ON</span>\n  </label>\n  <label>\n    <input type=\"radio\" type=\"radio\" name=\"vibrato-on\" value=\"0\" checked=\"true\"><span>OFF</span>\n  </label>\n  <label class=\"osc1-length\">\n    <span>Cent</span>\n    <input type=\"number\" name=\"vibrato-depth\" min=\"\" step=\"10\" max=\"200\" value=\"50\">\n  </label>\n  <label class=\"osc1-depth\">\n    <span>Freq</span>\n    <input type=\"number\" name=\"vibrato-freq\" value=\"5\" max=\"20\" min=\"0\">\n  </label>\n</div>\n\n<div class=\"col3-container\">\n  <h3>Delay</h3>\n  <label>\n    <input type=\"radio\" name=\"delay-on\" value=\"1\"><span>ON</span>\n  </label>\n  <label>\n    <input type=\"radio\" type=\"radio\" name=\"delay-on\" value=\"0\" checked=\"true\"><span>OFF</span>\n  </label>\n  <label class=\"delay-taps\">\n    <span>Taps</span>\n    <input type=\"number\" name=\"delay-taps\" value=\"2\" max=\"10\" min=\"0\">\n  </label>\n  <label class=\"delay-feedback\">\n    <span>Feedback</span>\n    <input type=\"number\" name=\"delay-feedback\" value=\"0.7\" max=\"2\" min=\"0\" step=\"0.1\">\n  </label>\n  <label class=\"delay-freq\">\n    <span>Latency</span>\n    <input type=\"number\" name=\"delay-latency\" value=\"400\" step=\"10\" min=\"0\" max=\"5000\">\n  </label>\n</div>\n\n<div class=\"col5-container adsr-container\">\n  <h3>ADSR envelope</h3>\n  <div class=\"col2-container\">\n    <label class=\"ADSR-A\">\n      <span>A</span>\n      <input type=\"number\" name=\"adsr-a\" value=\"50\" max=\"1000\" step=\"10\">\n    </label><br>\n    <label class=\"ADSR-D\">\n      <span>D</span>\n      <input type=\"number\" name=\"adsr-d\" value=\"50\" min=\"0\" max=\"5000\" step=\"50\">\n    </label><br>\n    <label class=\"ADSR-S\">\n      <span>S</span>\n      <input type=\"number\" name=\"adsr-s\" value=\"0.7\" min=\"0\" max=\"1\" step=\"0.1\">\n    </label><br>\n    <label class=\"ADSR-R\">\n      <span>R</span>\n      <input type=\"number\" name=\"adsr-r\" value=\"300\" min=\"0\" max=\"5000\" step=\"100\">\n    </label><br>\n  </div>\n  <img src=\"img/adsr.png\" class=\"adsr-image\" alt=\"ADSR\">\n</div>\n\n<div class=\"volume-pan-container col3-container\">\n  <label class=\"volume\">\n    <span>Volume</span>\n    <input class=\"volume\" name=\"volume\" value=\"0.5\" min=\"0\" max=\"1\" step=\"0.1\" type=\"number\">\n  </label>\n  <label class=\"pan\">\n    <span>Pan</span>\n    <input class=\"volume\" name=\"pan\" value=\"0\" min=\"-1\" max=\"1\" step=\"0.1\" type=\"number\">\n  </label>\n</div>\n\n<div class=\"wave-form-container col6-container\">\n  <label class=\"wave-form sine\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"sine\" checked>\n  </label>\n  <label class=\"wave-form sawtooth\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"sawtooth\">\n  </label>\n  <label class=\"wave-form square\">\n    <span class=\"img\"></span><br>\n    <input type=\"radio\" name=\"wave-form\" value=\"square\">\n  </label>\n</div>\n";
 
-},{}]},{},[7]);
+},{}]},{},[8]);
